@@ -21,5 +21,11 @@ namespace Spaces {
                 deliveryJob.StartJob();
             }
         }
+
+        public void EndJob() {
+            if (currentJobType == 0) {
+                deliveryJob.CancelJob();
+            }
+        }
     }
 }

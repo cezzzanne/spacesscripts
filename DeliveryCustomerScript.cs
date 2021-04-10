@@ -10,7 +10,7 @@ namespace Spaces {
             CharacterScript player = other.GetComponent<CharacterScript>();
             if (player != null) {
                 if (!player.otherPlayer) {
-                    jobManager.IncrementPackageCount();
+                    jobManager.IncrementPackageCount(gameObject);
                     Destroy(transform.parent);
                 }
             }

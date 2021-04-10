@@ -35,9 +35,11 @@ namespace Spaces {
 
         public JobManagerScript jobManager;
 
-        public GameObject DeliveryJobInstructions, ChoppingJobInstructions, ExitGame, InJobBanner;
+        public GameObject DeliveryJobInstructions, ChoppingJobInstructions, ExitGame, InJobBanner, DeliveryJobFinished;
 
         public TMPro.TextMeshProUGUI DeliveryInfoText;
+
+        public GameObject Compass, ExitJobSign;
 
 
         void Start() {
@@ -118,11 +120,37 @@ namespace Spaces {
                 // set the text to the current level
                 DeliveryJobInstructions.SetActive(true);
                 DeliveryInfoText.text = "Want to make some money? Go deliver to people the following item. \n Follow the compass to find the correct person (hint: they will be waving at you!)";
+            } else {
+                DeliveryJobInstructions.SetActive(true);
+                DeliveryInfoText.text = "Ooof that was a tough one! There's still a bit more money to be made though if you want to continue! \n Follow the compass to find the correct person (hint: they will be waving at you!)";
             }
         }
 
         public void CloseJob() {
             DeliveryJobInstructions.SetActive(false);
+            ToggleInitialState(false);
+        }
+
+        public void ToggleInitialState(bool initial) {
+            TakeScreenShotB.SetActive(initial);
+            GoBackHomeB.SetActive(initial);
+            ExitJobSign.SetActive(!initial);
+            Compass.SetActive(!initial);
+        }
+
+        public void StartJob() {
+            DeliveryJobInstructions.SetActive(false);
+            ToggleInitialState(false);
+        }
+
+        public void EndJob() {
+            ToggleInitialState(true);
+        }
+
+        public void JobFinished(int type) {
+            if (type == 0) {
+                DeliveryJobFinished.SetActive(true);
+            }
         }
     }
 }
