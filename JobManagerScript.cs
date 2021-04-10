@@ -7,9 +7,19 @@ namespace Spaces {
 
         private int currentJobType = -1;
 
+        public DeliverJobManager deliveryJob;
+
+        public ChoppingWoodManager choppingWood;
+
 
         public void SetTypeOfJob(int jobType) {
             currentJobType = jobType;
+        }
+ 
+        public void StartJob() {
+            if (currentJobType == 0) {
+                deliveryJob.StartJob();
+            }
         }
     }
 }
