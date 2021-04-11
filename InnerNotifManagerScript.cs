@@ -21,23 +21,31 @@ namespace Spaces {
         private int coins;
         private string lastRequest, consecutiveDays = "";
 
+        public TMPro.TextMeshProUGUI coinsText;
 
-        public void NewSetParent(Transform child, Transform parent) {
-            Vector3 pos = child.position;
-            Quaternion rot = child.rotation;
-            Vector3 scale = child.localScale;
-            child.parent = parent;
-            child.localPosition = pos;
-            child.localRotation = rot;
-            child.localScale = scale;
-        }
+        private float currentCoins = -1;
 
-        // END TESTING
+
 
         void Start() {
             FirebaseApp.DefaultInstance.SetEditorDatabaseUrl("https://spaces-d9a3c.firebaseio.com/");
             goldCoin = Instantiate(GoldCoinPrefab);
             goldCoin.SetActive(false);
+        }
+
+        void GetUserCoins() {
+            DatabaseReference reference = FirebaseDatabase.DefaultInstance.RootReference;
+            reference.Child("users").Child(username).Child("coins").GetValueAsync().ContinueWith(task => {
+                DataSnapshot snapshot = task.Result;
+                currentCoins = int.Parse(snapshot.Value.ToString());
+            });
+        }
+
+        IEnumerator SetUserCoins() {
+            if (currentCoins == -1) {
+                yield return null;
+            }
+            coinsText.text = "$" + currentCoins.ToString();
         }
 
         void Update() {
@@ -61,6 +69,8 @@ namespace Spaces {
         public void SetCharacterTarget(Transform characterTransform, string pUsername, string pRoomID) {
             character = characterTransform;
             username = pUsername;
+            GetUserCoins();
+            StartCoroutine(SetUserCoins());
             roomID = pRoomID;
             CheckForCoins();
         }
@@ -115,8 +125,8 @@ namespace Spaces {
             DatabaseReference reference = FirebaseDatabase.DefaultInstance.RootReference;
             reference.Child("users").Child(username).Child("coins").GetValueAsync().ContinueWith(task => {
                 DataSnapshot snapshot = task.Result;
-                Debug.Log("zz value : " + snapshot.Value);
                 int totalCoins = int.Parse(snapshot.Value.ToString()) + coinsAdded;
+                currentCoins = totalCoins;
                 Dictionary<string, object> coinsInfo = new Dictionary<string, object>() {
                     {"LastRequest", DateTime.Now.ToString()},
                     {"ConsecutiveDays", newConsecDays.ToString()}
@@ -152,6 +162,7 @@ namespace Spaces {
             notification.SetActive(false);
             displayingCoin = false;
             goldCoin.SetActive(false);
+            coinsText.text = "$" + currentCoins.ToString();
         }
 
         public void SendNotification(string message) {

@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+
 
 namespace Spaces {
     public class DeliverJobManager : MonoBehaviour {
@@ -23,60 +25,93 @@ namespace Spaces {
 
         public GameObject CustomerPrefab;
 
-        private List<GameObject> activeCustomers;
+        public CompassScript compass;
 
+        public GameObject currentCustomer;
 
-        void Start() {
-            // check playerprefs to see if we can play
-            // if no tupdate ui manager with time remaining to play
-        }
+        public TMPro.TextMeshProUGUI packageProgress;
+
+        public ItemLoaderStore itemLoader;
+
+        bool allowedToWork = false;
+
+        string lastDelivery;
+
+        TimeSpan timeDifference;
 
 
         public void StartJob() {
-            uIManager.ShowDeliverJobLevel(0);
+            CheckWorkStatus();
+            if (!allowedToWork) {
+                uIManager.CanDoDeliveryIn(timeDifference);
+            } else {
+                uIManager.ShowDeliverJobLevel(0);
+            }
+        }
+
+        void CheckWorkStatus() {
+            lastDelivery = PlayerPrefs.GetString("lastDelivery", "-1");
+            if (lastDelivery == "-1") {
+                allowedToWork = true;
+            } else {
+                timeDifference = DateTime.Now - Convert.ToDateTime(lastDelivery);
+                if (timeDifference.Hours > 6 || timeDifference.Days > 0) {
+                    allowedToWork = true;
+                } else {
+                    allowedToWork = false;
+                }
+            }
         }
 
         public void InitiateJob() {
+            PlayerPrefs.SetString("lastDelivery", DateTime.Now.ToString());
             // if level is 0 - set in player prefs the time
-            activeCustomers = new List<GameObject>();
-            currentPackageCount = (currentLevel == 0) ? 6 : 7;
+            currentPackageCount = (currentLevel == 0) ? 3 : 5;
             currentPackagesdelivered = 0;
+            packageProgress.text = "0/" + currentPackageCount.ToString();
             locationsInUse = new List<Vector3>();
-            for(int i = 0; i < currentPackageCount; i++) {
-                GameObject customer = Instantiate(CustomerPrefab);
-                Vector3 pos = GetRandomPosition();
-                customer.transform.position = pos;
-                customer.transform.rotation = Quaternion.Euler(0, Random.Range(-360, 360), 0);
-                customer.GetComponent<DeliveryCustomerScript>().SetJobManager(this);
-                activeCustomers.Add(customer);
-            }
+            SetCustomer();
             uIManager.StartJob();
         }
 
+        void SetCustomer() {
+            GameObject customer = Instantiate(CustomerPrefab);
+            Vector3 pos = GetRandomPosition();
+            customer.transform.position = pos;
+            customer.transform.rotation = Quaternion.Euler(0, UnityEngine.Random.Range(-360, 360), 0);
+            customer.GetComponent<DeliveryCustomerScript>().SetJobManager(this);
+            customer.transform.GetChild(1).GetComponent<SkinnedMeshRenderer>().material = availableSkins[Mathf.FloorToInt(UnityEngine.Random.Range(0, availableSkins.Count - 1))];
+            currentCustomer = customer;
+            compass.StartCompass(currentCustomer.transform.position);
+        }
+
         Vector3 GetRandomPosition() {
-            int randInt = Mathf.FloorToInt(Random.Range(0, possibleCustomerLocations.Count - locationsInUse.Count));
+            int randInt = Mathf.FloorToInt(UnityEngine.Random.Range(0, possibleCustomerLocations.Count - locationsInUse.Count));
             Vector3 tempLoc = possibleCustomerLocations[randInt];
             while (locationsInUse.Contains(tempLoc)) {
-                randInt = Mathf.FloorToInt(Random.Range(0, possibleCustomerLocations.Count - locationsInUse.Count));
+                randInt = Mathf.FloorToInt(UnityEngine.Random.Range(0, possibleCustomerLocations.Count - locationsInUse.Count));
                 tempLoc = possibleCustomerLocations[randInt];        
             }
+            locationsInUse.Add(tempLoc);
             return tempLoc;
         }
 
         public void CancelJob() {
-            foreach(GameObject customer in activeCustomers) {
-                Destroy(customer);
-            }
+            Destroy(currentCustomer);
+            itemLoader.UpdateFirebaseCoins(itemLoader.coinsValue);
             uIManager.CloseJob();
         }
 
         public void FinishJob() {
+            itemLoader.UpdateFirebaseCoins(itemLoader.coinsValue);
             uIManager.CloseJob();
         }
 
         public void IncrementPackageCount(GameObject customer) {
             currentPackagesdelivered++;
-            activeCustomers.Remove(customer);
+            itemLoader.UpdateCoinsText(itemLoader.coinsValue + 5);
+            packageProgress.text = currentPackagesdelivered.ToString() + "/" + currentPackageCount.ToString();
+            Destroy(customer);
             if (currentPackageCount == currentPackagesdelivered) {
                 currentLevel++;
                 if (currentLevel < 3) {
@@ -84,6 +119,8 @@ namespace Spaces {
                 } else {
                     uIManager.JobFinished(0);
                 }
+            } else {
+                SetCustomer();
             }
         }        
     }

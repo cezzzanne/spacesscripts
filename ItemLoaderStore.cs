@@ -71,7 +71,7 @@ namespace Spaces {
 
         string username;
 
-        int coinsValue = -1;
+        public int coinsValue = -1;
 
         public GameObject PhotoManager;
 
@@ -172,12 +172,17 @@ namespace Spaces {
                 coinsValue = Convert.ToInt32(snapshot.Value);
             });
         }
-    // have to do it in coroutine because you cannot do it async in callback from firebase
+
         IEnumerator UpdateCoinsUI() {
             while(coinsValue == -1) {
                 yield return null;
             }
-            coins.transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = "$" + coinsValue;
+            UpdateCoinsText(coinsValue);
+        }
+
+        public void UpdateCoinsText(int val) {
+            coinsValue = val;
+            coins.transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = "$" + val;
         }
 
 
@@ -353,7 +358,7 @@ namespace Spaces {
                     yield return new WaitForSeconds(2);
                     coinsValue -= int.Parse(currentItem.price);
                     coins.transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = "$" + coinsValue.ToString();
-                    DeductFirebaseCoins(coinsValue);
+                    UpdateFirebaseCoins(coinsValue);
                     AllStoreData[currentStoreIndex].data.RemoveAt(currIndex);
                     currIndex -= 1;
                     NextItem();
@@ -393,7 +398,7 @@ namespace Spaces {
                     yield return new WaitForSeconds(4);
                     coinsValue -= int.Parse(currentItem.price);
                     coins.transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = "$" + coinsValue.ToString();
-                    DeductFirebaseCoins(coinsValue);
+                    UpdateFirebaseCoins(coinsValue);
                     AllStoreData[currentStoreIndex].data.RemoveAt(currIndex);
                     NextItem();
                     LoadingPurchase.SetActive(false);
@@ -407,7 +412,7 @@ namespace Spaces {
             }
         }
 
-        void DeductFirebaseCoins(int coinsValue) {
+        public void UpdateFirebaseCoins(int coinsValue) {
             DatabaseReference reference = FirebaseDatabase.DefaultInstance.RootReference;
             Dictionary<string, object> user = new Dictionary<string, object>
             {

@@ -72,21 +72,10 @@ namespace Spaces {
     public class FriendManagerScript : MonoBehaviour {
         // Start is called before the first frame update
 
-        public GameObject Panel;
-
-        public GameObject EditingButton;
-        public GameObject AddFriendButton;
-        public GameObject CancelFormButton;
-        public GameObject HomeButton;
         public GameObject GroupFriendButton;
 
-        public GameObject ContactListButton;
-        public GameObject SpeakerButton;
-
-        public GameObject AddFriendForm;
-
-        public GameObject AddFriendInputField;
         public GameObject GameManager;
+
         GameManagerScript managerScript;
 
         public GameObject FriendListContent;
@@ -94,6 +83,7 @@ namespace Spaces {
         public GameObject ClosePanelButton;
         
         public GameObject UIManager;
+        
         UIManagerScript uiManagerScript;
 
         public GameObject itemLoaderGO;
@@ -102,30 +92,20 @@ namespace Spaces {
 
         private string username;
 
-        public GameObject requestPanelPrefab;
-
-        public GameObject RequestListContent;
-
-        public List<GameObject> RequestPanels;
-
-        public Dictionary<string, object> requestKeys;
 
         private string roomID;
 
-        private string sendRequestExtID = "null";
         public GameObject JoingGroupInputField;
 
         public GameObject GroupButtonPrefab;
 
         public GameObject OpenGroupPanel;
 
-        public GameObject InviteFriendInputField;
         private string currentGroupCode = "";
+
         public GameObject InviteFriendGroupCodeText;
 
         private string currentGroupName = "";
-
-        public Texture2D SpacesLogo;
 
         private GroupData currentGroup;
 
@@ -141,10 +121,7 @@ namespace Spaces {
             itemLoader = itemLoaderGO.GetComponent<ItemLoader>();
         }
 
-        void GetContact(string name, string number, string email) {
-            Debug.Log("Zzzz the number is " + number);
-            InviteFriendInputField.transform.parent.GetComponent<InputField>().text = number;
-        }
+
 
         IEnumerator GetGroups(string url, GameObject buttonPrefab, GroupButtonCallback callback, GameObject panel) {
             WWWForm form = new WWWForm();
@@ -194,17 +171,6 @@ namespace Spaces {
             uiManagerScript.JoinGroup();
         }
 
-        public void SubmitForm() {
-            string text = AddFriendInputField.GetComponent<Text>().text;
-            if (text.Trim() == "") {
-                AddFriendForm.SetActive(false);
-                AddFriendButton.SetActive(true);
-                return;
-            }
-            FriendsPhones friendsPhones = new FriendsPhones(){numbers = new List<string>()};
-            uiManagerScript.LoadingGroupCreation();
-            StartCoroutine(SendGroupRequest(text, false, friendsPhones, ()=> {uiManagerScript.ResultGroupCreation(true);}, ()=> {uiManagerScript.ResultGroupCreation(false);} ));
-        }
 
         public void JoinGroup() {
             string code = JoingGroupInputField.GetComponent<Text>().text;

@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 namespace Spaces {
+
     public class UIManagerPublicScript : MonoBehaviour {
 
         public GameObject SitDownButton;
@@ -40,6 +42,14 @@ namespace Spaces {
         public TMPro.TextMeshProUGUI DeliveryInfoText;
 
         public GameObject Compass, ExitJobSign;
+
+        public GameObject PackageProgress;
+
+        private bool inJob = false;
+
+        public GameObject DeliveryWaitForHours;
+
+        public TMPro.TextMeshProUGUI DeliveryWaitMessage;
 
 
         void Start() {
@@ -112,23 +122,38 @@ namespace Spaces {
             if (open) {
                 jobManager.SetTypeOfJob(jobType);
             } 
-            JobButton.SetActive(open);
+            if (!inJob) {
+                JobButton.SetActive(open);
+            }
         }
 
         public void ShowDeliverJobLevel(int level) {
             if (level == 0) {
                 // set the text to the current level
                 DeliveryJobInstructions.SetActive(true);
-                DeliveryInfoText.text = "Want to make some money? Go deliver to people the following item. \n Follow the compass to find the correct person (hint: they will be waving at you!)";
+                DeliveryInfoText.text = "Want to make some money? Go deliver to people the following item for $5 each!. \n Follow the compass to find the correct person (hint: they will be waving at you!)";
             } else {
                 DeliveryJobInstructions.SetActive(true);
                 DeliveryInfoText.text = "Ooof that was a tough one! There's still a bit more money to be made though if you want to continue! \n Follow the compass to find the correct person (hint: they will be waving at you!)";
             }
         }
 
+        public void AddPlayerToCompass(Transform player) {
+            Compass.GetComponent<CompassScript>().SetPlayer(player);
+        }
+
+        public void CanDoDeliveryIn(TimeSpan time) {
+            DeliveryWaitForHours.SetActive(true);
+            DeliveryWaitMessage.text = "No work just yet! Come back in " + (5 - time.Hours) + " hours and " + (60 - time.Minutes) + " minutes and we'll have something for you!";
+        }
+
+        public void HideCanDoDelivery() {
+            DeliveryWaitForHours.SetActive(false);
+        }
+
         public void CloseJob() {
             DeliveryJobInstructions.SetActive(false);
-            ToggleInitialState(false);
+            ToggleInitialState(true);
         }
 
         public void ToggleInitialState(bool initial) {
@@ -136,11 +161,14 @@ namespace Spaces {
             GoBackHomeB.SetActive(initial);
             ExitJobSign.SetActive(!initial);
             Compass.SetActive(!initial);
+            PackageProgress.SetActive(!initial);
+            inJob = !initial;
         }
 
         public void StartJob() {
             DeliveryJobInstructions.SetActive(false);
             ToggleInitialState(false);
+            JobButton.SetActive(false);
         }
 
         public void EndJob() {
@@ -151,6 +179,11 @@ namespace Spaces {
             if (type == 0) {
                 DeliveryJobFinished.SetActive(true);
             }
+        }
+
+        public void HideFinishedModal() {
+            DeliveryJobFinished.SetActive(false);
+            ToggleInitialState(true);
         }
     }
 }

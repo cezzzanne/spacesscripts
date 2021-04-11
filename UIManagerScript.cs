@@ -100,6 +100,9 @@ namespace Spaces {
 
         public GameObject SummonGroupB, SummonGroupForm, SummonGroupSendButton, SuccessSummonGroup;
 
+        public GameObject Coins;
+
+
         void Start() {
             inMyRoom = PlayerPrefs.GetString("currentRoomID") == PlayerPrefs.GetString("myRoomID");
             SetInitialState();
@@ -138,6 +141,7 @@ namespace Spaces {
             closePanelButton.SetActive(false);
             FullGamePanel.SetActive(false);
             SpeakingPanel.SetActive(true);
+            Coins.SetActive(true);
             OpenTabsToggle.SetActive(true);
             EditOrGoHomePanel.SetActive(false);
             GamePanel.SetActive(false);
@@ -162,7 +166,7 @@ namespace Spaces {
                 TopPanel.SetActive(true);
                 closePanelButton.SetActive(true);
                 OpenTabsToggle.SetActive(false);
-                OpenTabsToggle.SetActive(false);
+                Coins.SetActive(false);
                 EditOrGoHomePanel.SetActive(false);
                 GamePanel.SetActive(false);
                 SitDownButton.SetActive(false);
@@ -175,6 +179,7 @@ namespace Spaces {
                 TopPanel.SetActive(false);
                 CameraButton.SetActive(true);
                 SpeakingPanel.SetActive(true);
+                Coins.SetActive(true);
                 closePanelButton.SetActive(false);
                 OpenTabsToggle.SetActive(true);
             }
@@ -233,6 +238,7 @@ namespace Spaces {
         public void ToggleEditing() {
             if (isEditing) {
                 OpenTabsToggle.SetActive(true);
+                Coins.SetActive(true);
                 confirmItemB.SetActive(false);
                 ItemNameB.SetActive(false);
                 ItemSelectPanel.SetActive(false);
@@ -246,6 +252,7 @@ namespace Spaces {
                 CameraButton.SetActive(true);
             } else {
                 OpenTabsToggle.SetActive(false);
+                Coins.SetActive(false);
                 CameraButton.SetActive(false);
                 SitDownButton.SetActive(false);
                 JoinGameB.SetActive(false);
@@ -303,6 +310,7 @@ namespace Spaces {
         public void ToggleCharacterChange() {
             joystick.SetActive(changingCharacter);
             OpenTabsToggle.SetActive(changingCharacter);
+            Coins.SetActive(changingCharacter);
             CameraButton.SetActive(changingCharacter);
             SpeakingPanel.SetActive(changingCharacter);
             WardrobeB.SetActive(changingCharacter);
@@ -513,6 +521,7 @@ namespace Spaces {
             }
             joystick.SetActive(!open);
             OpenTabsToggle.SetActive(!open);
+            Coins.SetActive(!open);
             CameraButton.SetActive(!open);
             SitDownButton.SetActive(false);
             JoinGameB.SetActive(false);
@@ -569,6 +578,7 @@ namespace Spaces {
                 SpreadTabs();
             }
             OpenTabsToggle.SetActive(false);
+            Coins.SetActive(false);
             joystick.SetActive(false);
             CameraButton.SetActive(false);
             SpeakingPanel.SetActive(false);

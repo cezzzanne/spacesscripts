@@ -173,7 +173,7 @@ namespace Spaces {
             Dictionary<string, object> location = new Dictionary<string, object>
             {
                     { "LastSeen", lastSeen},
-                    { "Place", "~spaces~"}
+                    { "Place", "The Town"}
             };
             DatabaseReference reference = FirebaseDatabase.DefaultInstance.RootReference;
             reference.Child("users").Child(myUsername).UpdateChildrenAsync(location);

@@ -11,7 +11,6 @@ namespace Spaces {
             if (player != null) {
                 if (!player.otherPlayer) {
                     jobManager.IncrementPackageCount(gameObject);
-                    Destroy(transform.parent);
                 }
             }
         }

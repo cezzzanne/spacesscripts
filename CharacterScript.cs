@@ -117,6 +117,7 @@ namespace Spaces {
                     GameObject.FindGameObjectWithTag("Canvas").GetComponent<InputHandler>().SetTarget(this);
                     itemLoader.GetComponent<ItemLoaderStore>().SetMainCam(mainCam.GetComponent<PlayerFollow>());
                     uiManager = itemLoader.GetComponent<ItemLoaderStore>().ReturnUIManager();
+                    uiManager.GetComponent<UIManagerPublicScript>().AddPlayerToCompass(transform);
                     // CHANGED Back
                     // itemLoader.GetComponent<ItemLoaderv2>().SetCamera(mainCam.GetComponent<PlayerFollow>());
                     // iManager = itemLoader.GetComponent<ItemLoaderv2>().ReturnUIManager();

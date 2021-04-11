@@ -11,18 +11,20 @@ namespace Spaces {
 
         Transform compass;
 
-        public Transform character;
+        Transform character;
 
-        public Transform testTarget;
 
         void Start()  {
             compass = transform.GetChild(1).GetChild(0);
         }
 
-        public void StartCompass(Vector3 to, Transform player) {
+        public void SetPlayer(Transform player) {
+            character = player;
+        }
+
+        public void StartCompass(Vector3 to) {
             goingTo = to;
             active = true;
-            character = player;
         }
 
         public void StopCompass() {
@@ -32,10 +34,9 @@ namespace Spaces {
         // Update is called once per frame
         void Update() {
             if (active) {
-                Vector3 targetDir = testTarget.position - character.position;
+                Vector3 targetDir = goingTo - character.position;
                 Vector3 forward = character.forward;
                 float angle = Vector3.SignedAngle(targetDir, forward, Vector3.up);
-                print("qqq angle " + angle);
                 compass.eulerAngles = new Vector3(0 ,0, angle);
             }
         }
