@@ -23,7 +23,7 @@ namespace Spaces {
 
         public TMPro.TextMeshProUGUI coinsText;
 
-        private float currentCoins = -1;
+        private int currentCoins = -1;
 
 
 
@@ -41,6 +41,10 @@ namespace Spaces {
             });
         }
 
+        public int GetCurrentCoins() {
+            return currentCoins;
+        }
+
         IEnumerator SetUserCoins() {
             if (currentCoins == -1) {
                 yield return null;
@@ -55,6 +59,7 @@ namespace Spaces {
                 TurnCoin();
             }
         }
+
 
         void SetCoin() {
             Vector3 pos = character.transform.position;

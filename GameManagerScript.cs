@@ -51,6 +51,8 @@ namespace Spaces {
 
         private string myRoomID;
         private string currentSkin;
+
+        public InnerNotifManagerScript innerNotifManagerScript;
         // world type is based on the type of world the user posseses (3 kinds) // roomID is to join the same photon room based on player id
 
 
@@ -184,7 +186,11 @@ namespace Spaces {
         }
 
         public void GoToPublicWorld(string worldName) {
-            LogToFirebase(worldName, 1);
+            if (innerNotifManagerScript.GetCurrentCoins() - 5 < 0) {
+                // not enough coins to travel;
+                return;
+            }
+            LogToFirebase(worldName, 1, true);
             PlayerPrefs.SetString("currentPublicWorld", worldName);
             StartCoroutine(DisconnectToPublicWorld(worldName));
         }
@@ -283,16 +289,19 @@ namespace Spaces {
         }
 
 
-        public void LogToFirebase(string seenAt, int state) {
+        public void LogToFirebase(string seenAt, int state, bool goingToTown=false) {
             // -1 is left; 0 is sleeping; 1 is active
             string lastSeen = (state == 1) ? "1" : ((state == 0) ? "0" : DateTime.Now.ToString());
-            Dictionary<string, object> location = new Dictionary<string, object>
+            Dictionary<string, object> payload = new Dictionary<string, object>
             {
                     { "LastSeen", lastSeen},
                     { "Place", seenAt}
             };
+            if (goingToTown) {
+                payload.Add("coins", innerNotifManagerScript.GetCurrentCoins() - 5);
+            }
             DatabaseReference reference = FirebaseDatabase.DefaultInstance.RootReference;
-          reference.Child("users").Child(myUsername).UpdateChildrenAsync(location);
+            reference.Child("users").Child(myUsername).UpdateChildrenAsync(payload);
         } 
 
     }

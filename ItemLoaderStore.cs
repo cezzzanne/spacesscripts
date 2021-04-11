@@ -73,7 +73,7 @@ namespace Spaces {
 
         public int coinsValue = -1;
 
-        public GameObject PhotoManager;
+        public PhotoManagerPublicScript PhotoManager;
 
         public GameObject JoinConvoB;
 
@@ -234,6 +234,7 @@ namespace Spaces {
 
         public void SetMainCam(PlayerFollow cam) {
             mainCam = cam;
+            PhotoManager.SetMainCam(cam);
         }
 
 
