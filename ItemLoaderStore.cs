@@ -438,6 +438,10 @@ namespace Spaces {
             JoinConvoB.SetActive(true);
         }
 
+        public void SitDownCamToggle() {
+            mainCam.SitCameraToogle();
+        }
+
     }
 }
 

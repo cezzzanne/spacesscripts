@@ -121,7 +121,7 @@ public class LoginManager : MonoBehaviour {
 
     public void SetUpAccount() {
         SetFirebaseProfile();
-        SceneManager.LoadScene("TestMoon");
+        SceneManager.LoadScene("MainGame");
     }
 
 

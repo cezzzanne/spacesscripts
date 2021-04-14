@@ -32,7 +32,7 @@ public class SaveSystem: MonoBehaviour {
     private string myUserID = "";
 
     public void SaveSpace(Dictionary<string, object> data, Transform player, int id) {
-        StartCoroutine(MakeRequestSaveData("https://circles-parellano.herokuapp.com/api/save-apartment", data, id));
+        StartCoroutine(MakeRequestSaveData("https://circles-parellano.herokuapp.com/api/save-world", data, id));
     } 
 
 
@@ -88,7 +88,7 @@ public class SaveSystem: MonoBehaviour {
             }
             if (HandleNewObj != null) {
                 HandleNewObj();
-            }
+            } 
             yield return SpacesJson;
         }
     }

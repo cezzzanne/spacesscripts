@@ -46,7 +46,7 @@ namespace Spaces {
         }
 
         IEnumerator SetUserCoins() {
-            if (currentCoins == -1) {
+            while (currentCoins == -1) {
                 yield return null;
             }
             coinsText.text = "$" + currentCoins.ToString();
