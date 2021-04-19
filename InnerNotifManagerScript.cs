@@ -41,6 +41,12 @@ namespace Spaces {
             });
         }
 
+        public void SetCoinsforUser(string usern) {
+            username = usern;
+            GetUserCoins();
+            StartCoroutine(SetUserCoins());
+        }
+
         public int GetCurrentCoins() {
             return currentCoins;
         }

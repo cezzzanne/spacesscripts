@@ -149,6 +149,9 @@ namespace Spaces {
                         charChange.UpdateAccessories(accessories);
                         GameObject notificationManager = GameObject.FindGameObjectWithTag("NotificationManager");
                         notificationManager.GetComponent<InnerNotifManagerScript>().SetCharacterTarget(transform, username, myRoomID);
+                    } else {
+                        GameObject notificationManager = GameObject.FindGameObjectWithTag("NotificationManager");
+                        notificationManager.GetComponent<InnerNotifManagerScript>().SetCoinsforUser(username);
                     }
                 }
             }
@@ -162,7 +165,7 @@ namespace Spaces {
         }
 
         IEnumerator ActivateChat() {
-            yield return new WaitForSeconds(2);
+            yield return new WaitForSeconds(3);
             DatabaseReference reference = FirebaseDatabase.DefaultInstance.RootReference;
             reference.Child("withMatter").GetValueAsync().ContinueWith(task => {
                 DataSnapshot snapshot = task.Result;
@@ -294,6 +297,20 @@ namespace Spaces {
             if (otherPlayer) {
                 StartCoroutine(CheckSittingPosition());
             }
+            // StartCoroutine(Liftoff());
+        }
+
+        IEnumerator Liftoff() {
+            yield return new WaitForSeconds(5);
+            sitting = true;
+            float desiredY = transform.position.y + 10;
+            GetComponent<CharacterController>().enabled = false;
+            while (Mathf.Abs(transform.position.y - desiredY) > 1) {
+                transform.position = new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z);
+                yield return new WaitForSeconds(0.012f);
+            }
+            sitting = false;
+            GetComponent<CharacterController>().enabled = true;
         }
 
 

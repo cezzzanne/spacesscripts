@@ -60,87 +60,87 @@ public class CameraTour : MonoBehaviour {
 
     private bool rotationEnabled = true;
 
+    private Vector3 initialPosition;
+
     void Start() {
         desiredDistance = 7;
         currentDistance = 7;
     }
 
      void Update() {
-         if (!rotating && (Input.GetTouch(0).phase == TouchPhase.Moved) && rotationEnabled) { //(Input.GetTouch(0).phase == TouchPhase.Moved)) {
-             rotating = true;
-         }
          if (rotating) {
              // on editor test
-        //  if (Input.GetMouseButton(2)) {
-        //      desiredDistance -= Input.GetAxis("Mouse Y") * Time.deltaTime * zoomRate * 0.125f * Mathf.Abs(desiredDistance);
-        //  }
-        //  if (Input.GetMouseButton(0)) {
-        //     xDeg += Input.GetAxis("Mouse X") * xSpeed * 0.05f;
-        //      yDeg -= Input.GetAxis("Mouse Y") * ySpeed * 0.05f;
-        //      yDeg = ClampAngle(yDeg, yMinLimit, yMaxLimit);
-        //      desiredRotation = Quaternion.Euler(yDeg, xDeg, 0);
-        //      currentRotation = transform.rotation;
-        //      rotation = Quaternion.Lerp(currentRotation, desiredRotation, Time.deltaTime * zoomDampening);
-        //      transform.rotation = rotation;  
-        //  }
-        //  else if (Input.GetMouseButton(2)) {
-        //      target.rotation = transform.rotation;
-        //      target.Translate(Vector3.right * -Input.GetAxis("Mouse X") * panSpeed);
-        //      target.Translate(transform.up * -Input.GetAxis("Mouse Y") * panSpeed, Space.World);
-        //  }
-        //  desiredDistance -= Input.GetAxis("Mouse ScrollWheel") * Time.deltaTime * zoomRate * Mathf.Abs(desiredDistance);
-        //  desiredDistance = Mathf.Clamp(desiredDistance, minDistance, maxDistance);
-        //  currentDistance = Mathf.Lerp(currentDistance, desiredDistance, Time.deltaTime * zoomDampening);
-        //  position = target.position - (rotation * Vector3.forward * currentDistance + targetOffset);
-        //  transform.position = position;
+         if (Input.GetMouseButton(2)) {
+             desiredDistance -= Input.GetAxis("Mouse Y") * Time.deltaTime * zoomRate * 0.125f * Mathf.Abs(desiredDistance);
+         }
+         if (Input.GetMouseButton(0)) {
+           xDeg += Input.GetAxis("Mouse X") * xSpeed * 0.05f;
+             yDeg -= Input.GetAxis("Mouse Y") * ySpeed * 0.05f;
+             yDeg = ClampAngle(yDeg, yMinLimit, yMaxLimit);
+             desiredRotation = Quaternion.Euler(yDeg, xDeg, 0);
+             currentRotation = transform.rotation;
+             rotation = Quaternion.Lerp(currentRotation, desiredRotation, Time.deltaTime * zoomDampening);
+             transform.rotation = rotation;  
+         }
+         else if (Input.GetMouseButton(2)) {
+             target.rotation = transform.rotation;
+             target.Translate(Vector3.right * -Input.GetAxis("Mouse X") * panSpeed);
+             target.Translate(transform.up * -Input.GetAxis("Mouse Y") * panSpeed, Space.World);
+         }
+         desiredDistance -= Input.GetAxis("Mouse ScrollWheel") * Time.deltaTime * zoomRate * Mathf.Abs(desiredDistance);
+         desiredDistance = Mathf.Clamp(desiredDistance, minDistance, maxDistance);
+         currentDistance = Mathf.Lerp(currentDistance, desiredDistance, Time.deltaTime * zoomDampening);
+         position = target.position - (rotation * Vector3.forward * currentDistance + targetOffset);
+         transform.position = position;
 
 
         // on unity editor test
 
                                             //// ACTIVATE CODE BELOW FOR IPHONE
-            if (Input.touchCount==2) {
-                Touch touchZero = Input.GetTouch(0);
+            // if (Input.touchCount==2) {
+            //     Touch touchZero = Input.GetTouch(0);
 
-                Touch touchOne = Input.GetTouch(1);
-
-
-
-                Vector2 touchZeroPreviousPosition = touchZero.position - touchZero.deltaPosition;
-
-                Vector2 touchOnePreviousPosition = touchOne.position - touchOne.deltaPosition;
+            //     Touch touchOne = Input.GetTouch(1);
 
 
 
-                float prevTouchDeltaMag = (touchZeroPreviousPosition - touchOnePreviousPosition).magnitude;
+            //     Vector2 touchZeroPreviousPosition = touchZero.position - touchZero.deltaPosition;
 
-                float TouchDeltaMag = (touchZero.position - touchOne.position).magnitude;
+            //     Vector2 touchOnePreviousPosition = touchOne.position - touchOne.deltaPosition;
 
 
 
-                float deltaMagDiff = prevTouchDeltaMag - TouchDeltaMag;
+            //     float prevTouchDeltaMag = (touchZeroPreviousPosition - touchOnePreviousPosition).magnitude;
 
-                desiredDistance -= deltaMagDiff * Time.deltaTime * zoomRate * 0.0025f * Mathf.Abs(desiredDistance);
-            }
-            if (Input.touchCount==1 && Input.GetTouch(0).phase == TouchPhase.Moved) {
-                Vector2 touchposition = Input.GetTouch(0).deltaPosition;
-                xDeg += touchposition.x * xSpeed * 0.002f;
-                yDeg -= touchposition.y * ySpeed * 0.002f;
-                yDeg = ClampAngle(yDeg, yMinLimit, yMaxLimit);
-            }
-            desiredRotation = Quaternion.Euler(yDeg, xDeg, 0);
-            currentRotation = transform.rotation;
-            rotation = Quaternion.Lerp(currentRotation, desiredRotation, Time.deltaTime * zoomDampening);
-            transform.rotation = rotation;
-            desiredDistance = Mathf.Clamp(desiredDistance, minDistance, maxDistance);
-            currentDistance = Mathf.Lerp(currentDistance, desiredDistance, Time.deltaTime * zoomDampening);
+            //     float TouchDeltaMag = (touchZero.position - touchOne.position).magnitude;
 
-            position = target.position - (rotation * Vector3.forward * currentDistance );
 
-            position = position - targetOffset;
 
-            transform.position = position;
+            //     float deltaMagDiff = prevTouchDeltaMag - TouchDeltaMag;
+
+            //     desiredDistance += deltaMagDiff * Time.deltaTime * zoomRate * 0.0025f * Mathf.Abs(desiredDistance);
+            // }
+            // if (Input.touchCount==1 && Input.GetTouch(0).phase == TouchPhase.Moved) {
+            //     Vector2 touchposition = Input.GetTouch(0).deltaPosition;
+            //     xDeg += touchposition.x * xSpeed * 0.002f;
+            //     yDeg -= touchposition.y * ySpeed * 0.002f;
+            //     yDeg = ClampAngle(yDeg, yMinLimit, yMaxLimit);
+            // }
+            // desiredRotation = Quaternion.Euler(yDeg, xDeg, 0);
+            // currentRotation = transform.rotation;
+            // rotation = Quaternion.Lerp(currentRotation, desiredRotation, Time.deltaTime * zoomDampening);
+            // transform.rotation = rotation;
+            // desiredDistance = Mathf.Clamp(desiredDistance, minDistance, maxDistance);
+            // currentDistance = Mathf.Lerp(currentDistance, desiredDistance, Time.deltaTime * zoomDampening);
+
+            // position = target.position - (rotation * Vector3.forward * currentDistance );
+
+            // position = position - targetOffset;
+
+            // transform.position = position;
         }
      }
+
     private static float ClampAngle(float angle, float min, float max) {
         if (angle < -360)
             angle += 360;
@@ -150,12 +150,6 @@ public class CameraTour : MonoBehaviour {
     }
         
     public IEnumerator RotateCam() {
-        // yield return null;
-        // t += Time.deltaTime;
-        // mainCamera.transform.position = new Vector3(368.21f, 4.2f, 434.57f);
-        // Quaternion desiredRot = Quaternion.Euler(15, 0.366f, 0);
-        // Quaternion tempRot = mainCamera.transform.rotation;
-        // Quaternion desiredPlace = Quaternion.Euler(mainCamera.transform.rotation.x + 15, mainCamera.transform.rotation.y + 0.366f, mainCamera.transform.rotation.z); // Quaternion.Slerp(mainCamera.transform.rotation, desiredRot);
         Quaternion des = Quaternion.Euler(15, 0, 0);
         while (Quaternion.Angle(transform.rotation, des) > 2) {
             yield return new WaitForSeconds(0.01f);
@@ -178,7 +172,6 @@ public class CameraTour : MonoBehaviour {
             yield return new WaitForSeconds(0.01f);
             transform.position = Vector3.Lerp(transform.position, new Vector3(24.8344f, 108.1046f, 24.33046f), Time.deltaTime);
         }
-        Debug.Log("done moving to closet");
         editCharacter.SetActive(true);
         yield return new WaitForSeconds(10);
         editCharacter.SetActive(false);
@@ -189,8 +182,6 @@ public class CameraTour : MonoBehaviour {
     public IEnumerator MoveCameraToWorld(string characterSelected) {
         rotating = false;
         rotationEnabled = false;
-        characterSkin = characterSelected;
-        character.transform.GetChild(0).GetComponent<SkinnedMeshRenderer>().material = Resources.Load("Characters/Materials/" + characterSkin) as Material;
         Vector3 des = new Vector3(16, 104, -3);
         while ((transform.position - des).magnitude > 0.2) {
             yield return new WaitForSeconds(0.004f);
@@ -201,6 +192,29 @@ public class CameraTour : MonoBehaviour {
         } else {
             finalText.SetActive(true);
         }
+    }
+
+    public void ZoomInOnCharacter() {
+        initialPosition = transform.position;
+        Vector3 characterPos = target.position;
+        characterPos.z -= 2.2f;
+        characterPos.y += 1.9f;
+        transform.position = characterPos;
+    }
+
+    public void ZoomOutOnCharacter() {
+        transform.position = initialPosition;
+    }
+
+    public void ZoomInOnCharacterFace() {
+        Vector3 characterPos = target.position;
+        characterPos.z -= 1.2f;
+        characterPos.y += 1.9f;
+        transform.position = characterPos;
+    }
+
+    public void ZoomOutOfCharacterFace() {
+        ZoomInOnCharacter();
     }
 
     public void ReadyPlayerOne() {

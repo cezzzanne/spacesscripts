@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using SA.iOS.Social;
+
 
 namespace Spaces {
     public class UIManagerScript : MonoBehaviour {
@@ -101,6 +103,8 @@ namespace Spaces {
         public GameObject SummonGroupB, SummonGroupForm, SummonGroupSendButton, SuccessSummonGroup;
 
         public GameObject Coins;
+
+        private string currentEvent = "";
 
 
         void Start() {
@@ -654,16 +658,17 @@ namespace Spaces {
 
         public void ToggleAnswer(string question) {
             GameObject newOpenAnswer = null;
-            if (question == "publicWorlds") {
+            currentEvent = question;
+            if (question == "meetup") {
                 PublicWorldsAns.SetActive(!PublicWorldsAns.activeSelf);
                 newOpenAnswer = PublicWorldsAns;
-            } else if (question == "coins") {
+            } else if (question == "hunt") {
                 CoinsAns.SetActive(!CoinsAns.activeSelf);
                 newOpenAnswer = CoinsAns;
-            } else if (question == "groups") {
+            } else if (question == "happyhour") {
                 GroupsAns.SetActive(!GroupsAns.activeSelf);
                 newOpenAnswer = GroupsAns;
-            } else if (question == "games") {
+            } else if (question == "gameday") {
                 GamesAns.SetActive(!GamesAns.activeSelf);
                 newOpenAnswer = GamesAns;
             }
@@ -673,6 +678,34 @@ namespace Spaces {
             } else {
                 CurrentOpenAns = newOpenAnswer;
             }
+        }
+
+        public void ShareEvent() {
+            string eventName = "";
+            string eventDescription = "";
+            if (currentEvent == "meetup") {
+                eventName = "~spaces universe meetup~";
+                eventDescription = "chat with other people in ~spaces~ about how to improve the universe!";
+            } else if (currentEvent == "hunt") {
+                eventName = "The Hunt";
+                eventDescription = "search with other people in ~spacees~ for the treasure chest and get $200 coins!";
+            } else if (currentEvent == "happyhour") {
+                eventName = "~spaces~ Happy Hour";
+                eventDescription = "meet other people around ~spaces~ in the town bar as you wind down the week!";
+            } else if (currentEvent == "gameday") {
+                eventName = "~spaces~ Game Day";
+                eventDescription = "meet other people around ~spaces~ and play against them in board game tournaments!";
+            }
+            ISN_UIActivityViewController controller = new ISN_UIActivityViewController();
+            controller.SetText("@" + username + " has invited you to the '" + eventName + "' in Spaces! Come and " + eventDescription +  ".\n\n Download and join here -> http://bit.ly/spaces-app");
+            controller.Present((result) => {
+                if(result.IsSucceeded) {
+                    Debug.Log("Completed: " + result.Completed);
+                    Debug.Log("ActivityType: " + result.ActivityType);
+                } else {
+                    Debug.Log("ISN_UIActivityViewController error: " + result.Error.FullMessage);
+                }
+            });
         }
 
         public void OpenSummonGroupForm(){
