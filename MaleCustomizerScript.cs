@@ -174,6 +174,11 @@ namespace Spaces {
         }
 
         public void SetShirt() {
+            if (!isMale) { //  TODO: ONLY LEAVEE THIS FOR SIGN UP
+                if (index == 0) {
+                    index = 2;
+                }
+            }
             CharacterCustomization.SetElementByIndex(ClothesPartType.Shirt, index);
             hasShirt = true;
         }
