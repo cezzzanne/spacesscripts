@@ -74,6 +74,11 @@ namespace Spaces {
    
     float pitch = 0.0f;
     float yaw = 0.0f;
+
+    Vector3 initialPosition;
+
+    public Transform EditableCharacter;
+
      void Update() {
          if (rotating) {
              // on editor test
@@ -340,7 +345,34 @@ namespace Spaces {
 
         public void StopElevator() {
             ZoomOutPlayer();
+        } 
+
+        public void ZoomInOnCharacter() {
+            Vector3 characterPos = EditableCharacter.position;
+            characterPos.z -= 2.2f;
+            characterPos.y += 1.9f;
+            transform.eulerAngles = new Vector3(0, 0, 0);
+            transform.position = characterPos;
         }
 
+
+        public void ZoomInOnCharacterFace() {
+            Vector3 characterPos = EditableCharacter.position;
+            characterPos.z -= 1.2f;
+            characterPos.y += 1.9f;
+            transform.position = characterPos;
+        }
+
+        public void SetEditableCharacter(Transform character) {
+            EditableCharacter = character;
+        }
+
+        public void ZoomOutOfCharacterFace() {
+            ZoomInOnCharacter();
+        }
+
+        public void ToggleEditing() {
+            selectingItem = !selectingItem;
+        }
     }
 }

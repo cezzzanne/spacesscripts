@@ -91,6 +91,25 @@ namespace Spaces {
         private int currentStoreIndex = 0;
 
         public GameObject ItemLoaderStoreTerrain;
+
+        public List<Sprite> menShoes;
+
+        public List<Sprite> menShirts, menAccessories, menPants, menCaps;
+
+        public List<Sprite> femaleShirts, femaleAccessories, femalePants, femaleCaps, femaleShoes;
+
+        private List<List<Sprite>> menClothes, womenClothes;
+
+        private List<List<Sprite>> clothingItems;
+
+        public GameObject ClothingUI, ObjectUI;
+
+        public TMPro.TextMeshProUGUI clothingName, clothingPrice;
+
+        public Image ClothingImage;
+
+        bool isMale;
+        // index;type (0=accessory, 1=hat, 2=pants, 3=shirt, 4=shoes);gender(0=female,1=male)
         
         void Start() {
             AllStoreData = new List<StoreResponse>();
@@ -98,10 +117,36 @@ namespace Spaces {
             roomID = PlayerPrefs.GetString("myRoomID");
             StartCoroutine(GetItems());
             FirebaseApp.DefaultInstance.SetEditorDatabaseUrl("https://spaces-d9a3c.firebaseio.com/");
+            womenClothes = new List<List<Sprite>>() {
+                femaleAccessories, femaleCaps, femalePants, femaleShirts, femaleShoes
+            };
+            menClothes = new List<List<Sprite>>() {
+                menAccessories, menCaps, menPants, menShirts, menShoes
+            };
+            isMale = PlayerPrefs.GetInt("isMale") == 1;
+            clothingItems = isMale ? menClothes : womenClothes;
         }
 
         public GameObject ReturnUIManager() {
             return uiManager;
+        }
+
+        StoreResponse RemoveOtherGenderClothes(StoreResponse store) {
+            // this is absolutely horrible - TODO: move the logic out to the backend
+            StoreResponse tempResp = new StoreResponse();
+            tempResp.data = new List<StoreItem>();
+            foreach(StoreItem item in store.data) {
+                if (item.type == "skin") {
+                    if (item.location.Split(';')[2] == "1" && isMale) {
+                       tempResp.data.Add(item);
+                    } else if (item.location.Split(';')[2] == "0" && !isMale) {
+                        tempResp.data.Add(item);
+                    }
+                } else {
+                    tempResp.data.Add(item);
+                }
+            }
+            return tempResp;
         }
 
 
@@ -117,12 +162,12 @@ namespace Spaces {
             else {
                 string response = www.downloadHandler.text;
                 yield return response;
-                // storeData = JsonUtility.FromJson<StoreResponse>(response);
-                AllStoreData.Add(JsonUtility.FromJson<StoreResponse>(response));
+                AllStoreData.Add(RemoveOtherGenderClothes(JsonUtility.FromJson<StoreResponse>(response)));
                 StartCoroutine(GetItems2());
                 GetCoins();
             }
         }
+
         IEnumerator GetItems2() {
             WWWForm form = new WWWForm();
             form.AddField("userID", roomID);
@@ -135,10 +180,11 @@ namespace Spaces {
             else {
                 string response = www.downloadHandler.text;
                 yield return response;
-                AllStoreData.Add(JsonUtility.FromJson<StoreResponse>(response));
+                AllStoreData.Add(RemoveOtherGenderClothes(JsonUtility.FromJson<StoreResponse>(response)));
                 StartCoroutine(GetItems3());
             }
         }
+
         IEnumerator GetItems3() {
             WWWForm form = new WWWForm();
             form.AddField("userID", roomID);
@@ -151,7 +197,7 @@ namespace Spaces {
             else {
                 string response = www.downloadHandler.text;
                 yield return response;
-                AllStoreData.Add(JsonUtility.FromJson<StoreResponse>(response));
+                AllStoreData.Add(RemoveOtherGenderClothes(JsonUtility.FromJson<StoreResponse>(response)));
             }
         }
 
@@ -281,11 +327,15 @@ namespace Spaces {
                 BuyItemB.SetActive(true);
             }
             if (item.type == "skin") {
-                Material material = Resources.Load<Material>(item.location) as Material;
-                characterModel.GetComponent<SkinnedMeshRenderer>().material = material;
-                characterModel.transform.parent.gameObject.SetActive(true);
+                ToggleClothingUI(true);
+                string[] itemSpec = item.location.Split(';');
+                Sprite itemImage = clothingItems[int.Parse(itemSpec[1])][int.Parse(itemSpec[0])];
+                ClothingImage.sprite = itemImage;
+                clothingPrice.text = "$" + item.price;
+                clothingName.text = item.name;
                 currentObjectType = 0;
             } else if (item.type == "object" || item.type == "accessory") {
+                ToggleClothingUI(false);
                 GameObject currentAsset = Resources.Load<GameObject>("StoreItems/" + item.location) as GameObject;
                 Vector3 prevScale = currentAsset.transform.localScale;
                 GameObject instPrefab = Instantiate(currentAsset);
@@ -300,6 +350,7 @@ namespace Spaces {
                 currentItem = instPrefab;
                 currentObjectType = 1;
             } else {
+                ToggleClothingUI(false);
                 GameObject currentAsset = Resources.Load<GameObject>("Worlds/" + item.location) as GameObject;
                 GameObject instPrefab = Instantiate(currentAsset);
                 instPrefab.transform.localScale = new Vector3(0.15f, 0.15f, 0.15f);
@@ -312,6 +363,11 @@ namespace Spaces {
                 currentObjectType = 2;
             }
             FitCamera();
+        }
+
+        void ToggleClothingUI(bool open) {
+            ClothingUI.SetActive(open);
+            ObjectUI.SetActive(!open);
         }
 
         public void PrevItem() {
@@ -427,6 +483,7 @@ namespace Spaces {
             if (currentObjectType == 1 || currentObjectType == 2 ){
                 Destroy(currentItem);
             }
+            ToggleClothingUI(false);
             ToggleUI();
             mainCam.ToggleItemLoader();
         }

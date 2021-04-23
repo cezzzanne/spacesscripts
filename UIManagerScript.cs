@@ -106,6 +106,10 @@ namespace Spaces {
 
         private string currentEvent = "";
 
+        public GameObject CharacterEditingPanel;
+
+        public MaleCustomizerScript customizer;
+
 
         void Start() {
             inMyRoom = PlayerPrefs.GetString("currentRoomID") == PlayerPrefs.GetString("myRoomID");
@@ -728,6 +732,32 @@ namespace Spaces {
             yield return new WaitForSeconds(2.5f);
             SuccessSummonGroup.SetActive(false);
             SummonGroupB.SetActive(true);
+        }
+
+        public void AddCameraToCustomizer(PlayerFollow cam) {
+            customizer.SetCam(cam);
+        }
+
+        public void StartEditing() {
+            ToggleEditCharacter(true);
+            customizer.StartEditing();
+        }
+
+        public void ToggleEditCharacter(bool editing) {
+            joystick.SetActive(!editing);
+            OpenTabsToggle.SetActive(!editing);
+            Coins.SetActive(!editing);
+            CameraButton.SetActive(!editing);
+            SpeakingPanel.SetActive(!editing);
+            WardrobeB.SetActive(!editing);
+            if (tabsSpread && editing) {
+                    SpreadTabs();
+            }
+            CharacterEditingPanel.SetActive(editing);
+            if (!editing) {
+                SetInitialState();
+            }
+            changingCharacter = !changingCharacter;
         }
 
     }

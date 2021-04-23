@@ -46,12 +46,17 @@ namespace Spaces {
         private Dictionary<string, List<GameObject>> items;
 
         private string currentBrowsingType = "Furniture";
+
         public GameObject NoItemsBanner, NextItemB, PrevItemB;
+
         public GameObject FurnitureBackdrop, ElectronicsBackdrop, PlantsBackdrop, ExtraBackdrop;
+
         private Dictionary<string, GameObject> ItemButtonBackdrops;
         List<GameObject> fullItemList;
         
         public GameObject ItemRemover;
+
+        public MaleCustomizerScript CharacterCustomizer;
 
         void Start() {
             fullItemList = new List<GameObject>();
@@ -94,8 +99,9 @@ namespace Spaces {
                     storeDataSkins = new List<StoreItem>();
                     StoreResponse fullData = JsonUtility.FromJson<StoreResponse>(response);
                     foreach(StoreItem item in fullData.data) {
-                        if (item.type == "skin" ||  item.type == "accessory") {
-                            CharacterChangeScript.AddToCharacterObjects(item.type == "skin", item);
+                        if (item.type == "accessory") {
+                            // CharacterChangeScript.AddToCharacterObjects(item.type == "skin", item);
+                            CharacterCustomizer.AddAvailableItems(item);
                         } else if (item.type == "object") {
                             GameObject currentAsset = Resources.Load<GameObject>("StoreItems/" + item.location) as GameObject;
                             fullItemList.Add(currentAsset);

@@ -8,17 +8,9 @@ using UnityEngine.UI;
 namespace Spaces {
     public class MaleCustomizerScript : MonoBehaviour {
 
-        List<int> availablePants = new List<int>() {
-            0,
-            1
-        };
-
         // the index of the available items
 
-        List<int> availabeShirts = new List<int>() {
-            0,
-            1
-        };
+
 
         int index = 0;
 
@@ -108,6 +100,11 @@ namespace Spaces {
 
         public GameObject PrebuiltTerrain, PrebuiltWorld;
 
+        public bool inGame = false;
+
+        private List<int> availableShirts, availablePants, availableShoes, availableAccessories, availableHats = new List<int>();
+
+        public GameObject ExtrasPanel;
 
         void Start() {
             skinColors = new List<Color>() {
@@ -143,6 +140,12 @@ namespace Spaces {
                 new Color(0.9686275f, 0.7215686f, 0f, 1f),
                 new Color(0.1411765f, 0f, 0f, 1f)
             };
+            availableShirts = new List<int>(){0, 1};
+            availablePants = new List<int>() {0, 1};
+            if (inGame) {
+                InGameStart();
+                return;
+            }
             int menOrWoman = UnityEngine.Random.Range(-1, 1);
             if (menOrWoman < 0) {
                 MaleCustomizer.gameObject.SetActive(true);
@@ -174,16 +177,11 @@ namespace Spaces {
         }
 
         public void SetShirt() {
-            if (!isMale) { //  TODO: ONLY LEAVEE THIS FOR SIGN UP
-                if (index == 0) {
-                    index = 2;
-                }
-            }
-            CharacterCustomization.SetElementByIndex(ClothesPartType.Shirt, index);
+            CharacterCustomization.SetElementByIndex(ClothesPartType.Shirt, availableShirts[index]);
             hasShirt = true;
         }
         public void SetPants() {
-            CharacterCustomization.SetElementByIndex(ClothesPartType.Pants, index);
+            CharacterCustomization.SetElementByIndex(ClothesPartType.Pants, availablePants[index]);
             hasPants = true;
         }
 
@@ -265,11 +263,11 @@ namespace Spaces {
                 PlaceItem = () => {SetBeard();};
                 ZoomInOnFace();
             } else if (type == 2) {
-                maxIndex = 2;
+                maxIndex = availableShirts.Count;
                 PlaceItem = () => {SetShirt();};
                 ZoomOutOnFace();
             } else if (type == 3) {
-                maxIndex = 2;
+                maxIndex = availablePants.Count;
                 PlaceItem = () => {SetPants();};
                 ZoomOutOnFace();
             } else if (type == 4) {
@@ -308,6 +306,8 @@ namespace Spaces {
                 BodySlider.maxValue = 100;
                 BodySlider.value = 0;
                 ZoomOutOnFace();
+            } else if (type == 11) {
+                // if no items then just show they don't have items yet
             }
         }
 
@@ -386,7 +386,10 @@ namespace Spaces {
                 NextItemButton.SetActive(true);
                 PreviousItemButton.SetActive(true);
                 ConfirmItemButton.SetActive(true);
+                FinalizeSelection.SetActive(false);
                 ZoomInOnFace();
+            } else if (type == 4) {
+                CurrentSelectionPanel = ExtrasPanel;
             }
             MainSelectionPanel.SetActive(false);
             CurrentSelectionPanel.SetActive(true);
@@ -396,11 +399,20 @@ namespace Spaces {
 
 
         private void ZoomInOnFace() {
-            mainCam.ZoomInOnCharacterFace();
+            if (inGame) {
+                gameCam.ZoomInOnCharacterFace();
+            } else {
+                mainCam.ZoomInOnCharacterFace();
+            }
         }
 
         private void ZoomOutOnFace() {
-            mainCam.ZoomOutOfCharacterFace();
+            if (inGame) {
+                gameCam.ZoomOutOfCharacterFace();
+            } else {
+                mainCam.ZoomOutOfCharacterFace();
+
+            }
         }
 
         public void GoBackToMainSelection() {
@@ -426,6 +438,7 @@ namespace Spaces {
             mainCam.ZoomOutOnCharacter();
             PlayerPrefs.SetString("myWorldType", "MainGame");
             PlayerPrefs.SetString("myCharacter", json);
+            PlayerPrefs.SetInt("isMale", (isMale ? 1 : 0));
             MaleCustomizationPanel.SetActive(false);
             StartCoroutine(mainCam.GetComponent<CameraTour>().MoveCameraToWorld(json));
             PrebuiltTerrain.SetActive(true);
@@ -437,12 +450,68 @@ namespace Spaces {
             if (man) {
                 CharacterCustomization = MaleCustomizer;
                 FemaleCustomizer.gameObject.SetActive(false);
+                availableShirts = new List<int>(){0, 1};
             } else {
                 CharacterCustomization = FemaleCustomizer;
                 MaleCustomizer.gameObject.SetActive(false);
+                availableShirts = new List<int>() {1, 2};
             }
             SexSelectionPanel.SetActive(false);
             StartCustomization();
+        }
+
+        // IN GAME EDITING FUNCS START HERE
+
+
+        public string charSetup;
+
+        public CharacterCustomization MaleChar, FemaleChar;
+
+        public UIManagerScript uIManager;
+
+        PlayerFollow gameCam;
+
+        public void InGameStart() {
+            isMale = PlayerPrefs.GetInt("isMale") == 1;
+            charSetup = PlayerPrefs.GetString("myCharacter");
+            CharacterCustomizationSetup setup = CharacterCustomizationSetup.DeserializeFromJson(charSetup);
+            if (isMale) {
+                MaleChar.gameObject.SetActive(true);
+                CharacterCustomization = MaleChar;
+            } else {
+                FemaleChar.gameObject.SetActive(true);
+                availableShirts = new List<int>() {1, 2};
+                CharacterCustomization = FemaleChar;
+            }
+            CharacterCustomization.SetCharacterSetup(setup);
+        }
+
+        public void SetCam(PlayerFollow cam) {
+            gameCam = cam;
+            gameCam.SetEditableCharacter(MaleChar.transform); // male and female are in same pos
+        }
+
+
+        public void CancelEditing() {
+            uIManager.ToggleEditCharacter(false);
+            gameCam.ToggleEditing();
+        }
+
+        public void StartEditing() {
+            gameCam.ToggleEditing();
+            gameCam.ZoomInOnCharacter();
+        }
+
+        public void FinishedEditingInGame() {
+            CharacterCustomizationSetup characterCustomizationSetup = CharacterCustomization.GetSetup();
+            string json = characterCustomizationSetup.SerializeToJson();
+            PlayerPrefs.SetString("myCharacter", json);    
+            CancelEditing();
+        }
+
+        public void AddAvailableItems(StoreItem item) {
+
+            // it includes name, type and location (location being the index of the item)
         }
 
     }

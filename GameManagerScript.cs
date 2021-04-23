@@ -53,6 +53,8 @@ namespace Spaces {
         private string currentSkin;
 
         public InnerNotifManagerScript innerNotifManagerScript;
+
+        public GameObject MalePrefab;
         // world type is based on the type of world the user posseses (3 kinds) // roomID is to join the same photon room based on player id
 
 
@@ -118,6 +120,7 @@ namespace Spaces {
         }
 
         void Start() {
+            PhotonNetwork.Disconnect();
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
             LoadingScreen.SetActive(true);
             currentWorldType = PlayerPrefs.GetString("currentWorldType");
@@ -141,9 +144,10 @@ namespace Spaces {
         }
 
        public void OnClickConnectRoom() {
-            currentSkin = PlayerPrefs.GetString("CurrentSkin");
-            GameObject playerPrefab = Resources.Load<GameObject>("Characters/" + currentSkin);
-            PlayerPrefab = playerPrefab.GetComponent<CharacterScript>();
+            // currentSkin = PlayerPrefs.GetString("CurrentSkin");
+            // GameObject playerPrefab = Resources.Load<GameObject>("Characters/" + currentSkin);
+            // PlayerPrefab = playerPrefab.GetComponent<CharacterScript>();
+            PlayerPrefab = MalePrefab.GetComponent<CharacterScript>();
             PhotonNetwork.JoinRoom(roomIDToJoin);
         }
 

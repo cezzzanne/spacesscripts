@@ -11,11 +11,12 @@ using Photon.Voice.PUN;
 using Firebase;
 using Firebase.Unity.Editor;
 using Firebase.Database;
+using AdvancedCustomizableSystem;
 
 namespace Spaces {
     public class CharacterScript : MonoBehaviourPun, IPunObservable, IPunInstantiateMagicCallback {
         Joystick joystick;
-        Animator animator;
+        public Animator animator;
         public float inputDelay = 0.1f;
         public float forwardVel = 12;
         public float rotateVel = 100;
@@ -28,7 +29,7 @@ namespace Spaces {
         public GameObject mainCam;
 
 
-        CharacterController characterController;
+        public CharacterController characterController;
 
         Vector3 testPosition;
 
@@ -84,14 +85,18 @@ namespace Spaces {
 
         public bool inGame = false;
 
+        private string charSetup;
+
         public Quaternion TargetRotation() {
             return transform.rotation;
         }
         void Awake() {
-            animator = GetComponent<Animator>();
             inPublicRoom = PlayerPrefs.GetInt("isInPublicWorld");
             friendsPreviousAccessories = new Dictionary<int, List<GameObject>>();
             itemLoader = GameObject.FindGameObjectWithTag("ItemLoader");
+            charSetup = PlayerPrefs.GetString("myCharacter");
+            CharacterCustomizationSetup setup = CharacterCustomizationSetup.DeserializeFromJson(charSetup);
+            GetComponent<CharacterCustomization>().SetCharacterSetup(setup);
             if (!photonView.IsMine) {
                 otherPlayer = true;
                 if (inPublicRoom == 1) {
@@ -101,14 +106,14 @@ namespace Spaces {
                 mainCam = Resources.Load("Main Camera") as GameObject;
                 mainCam = Instantiate(mainCam);
                 PlayerFollow cameraScript = mainCam.GetComponent<PlayerFollow>();
-                cameraScript.SetCameraTarget(transform, inPublicRoom);
+                cameraScript.SetCameraTarget(characterController.transform, inPublicRoom);
                 GameObject itemControllerObject = GameObject.FindGameObjectWithTag("ItemPlacementController") as GameObject;
                 PV = transform.GetComponent<PhotonView>();
                 username = PlayerPrefs.GetString("username");
-                accessories = PlayerPrefs.GetString("Accessories");
+                // accessories = PlayerPrefs.GetString("Accessories");
                 previousAccesories = new List<GameObject>();
-                PV.RPC("RPC_ChangeCharacterName", RpcTarget.AllBuffered, username, PV.ViewID);
-                PV.RPC("RPC_SetCharacterAccessories", RpcTarget.AllBuffered, accessories, PV.ViewID);
+                // PV.RPC("RPC_ChangeCharacterName", RpcTarget.AllBuffered, username, PV.ViewID); TODO: UNCOMMENT THIS
+                // PV.RPC("RPC_SetCharacterAccessories", RpcTarget.AllBuffered, accessories, PV.ViewID);
                 if (inPublicRoom == 1) {
                     ChatManager = (GameObject.FindGameObjectWithTag("ChatManager") as GameObject).GetComponent<PublicWorldChatManager>();
                     ChatManager.SetMainCharacter(this);
@@ -140,13 +145,14 @@ namespace Spaces {
                     uiManager = itemLoader.GetComponent<ItemLoader>().ReturnUIManager();
                     uiManager.GetComponent<UIManagerScript>().SetSitDownListeners(SitDown, StandUp);
                     uiManager.GetComponent<UIManagerScript>().SetGamingManagerCharacter(this);
+                    uiManager.GetComponent<UIManagerScript>().AddCameraToCustomizer(mainCam.GetComponent<PlayerFollow>());
                     SetParticipateInConvoCollider();
                     if (myRoom) {
                         GameObject itemController = GameObject.FindGameObjectWithTag("ItemPlacementController");
                         itemController.GetComponent<ItemPlacementController>().SetTarget(transform);
                         CharacterChange charChange = GameObject.FindGameObjectWithTag("CharacterChange").GetComponent<CharacterChange>();
                         charChange.SetTargetCharacter(this);
-                        charChange.UpdateAccessories(accessories);
+                        // charChange.UpdateAccessories(accessories);
                         GameObject notificationManager = GameObject.FindGameObjectWithTag("NotificationManager");
                         notificationManager.GetComponent<InnerNotifManagerScript>().SetCharacterTarget(transform, username, myRoomID);
                     } else {
@@ -161,7 +167,7 @@ namespace Spaces {
             BoxCollider collider = gameObject.AddComponent<BoxCollider>();
             collider.isTrigger = true;
             collider.center = new Vector3(0, 3, 0);
-            collider.size = collider.size * 6;
+            collider.size = collider.size * 2;
         }
 
         IEnumerator ActivateChat() {
@@ -293,7 +299,7 @@ namespace Spaces {
             targetRotation = transform.rotation;
             //rBody = GetComponent<Rigidbody>();
             forwardInput = turnInput = 0;
-            characterController = transform.GetComponent<CharacterController>();
+            // characterController = transform.GetComponent<CharacterController>();
             if (otherPlayer) {
                 StartCoroutine(CheckSittingPosition());
             }
@@ -458,7 +464,7 @@ namespace Spaces {
         void Run() {
             Vector3 newPos = transform.position + (transform.forward * forwardInput * forwardVel * Time.deltaTime * 55);
             // transform.position = newPos; //Vector3.Lerp(transform.position, newPos, Time.deltaTime * 10f);
-            characterController.Move(transform.forward * forwardInput * forwardVel);
+            characterController.SimpleMove(transform.forward * forwardInput * forwardVel * 40);
             animator.SetFloat("Speed", forwardInput);
         }
 
@@ -466,11 +472,11 @@ namespace Spaces {
             targetRotation *= Quaternion.AngleAxis(rotateVel * turnInput * Time.deltaTime, Vector3.up);
             animator.SetFloat("TurnDirection", turnInput);
             transform.rotation = targetRotation;//Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
-            if (transform.position.y > 0.3) {
-                Vector3 pos = transform.position;
-                pos.y -= 0.3f;
-                transform.position = pos;
-            }
+            // if (transform.position.y > 0.3) {
+            //     Vector3 pos = transform.position;
+            //     pos.y -= 0.3f;
+            //     transform.position = pos;
+            // }
         }
 
 

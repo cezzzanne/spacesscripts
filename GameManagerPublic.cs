@@ -47,6 +47,8 @@ namespace Spaces {
 
         // FirebaseFirestore db;
 
+        public GameObject MalePrefab;
+
 
         void Awake() {
             if (PlayerPrefs.GetInt("isInPublicWorld") == 0) {
@@ -85,8 +87,9 @@ namespace Spaces {
             myUsername = PlayerPrefs.GetString("username");
             string currentSkin = PlayerPrefs.GetString("CurrentSkin");
             publicWorldName = PlayerPrefs.GetString("currentPublicWorld");
-            GameObject playerPrefab = Resources.Load<GameObject>("Characters/" + currentSkin);
-            PlayerPrefab = playerPrefab.GetComponent<CharacterScript>();;
+            // GameObject playerPrefab = Resources.Load<GameObject>("Characters/" + currentSkin);
+            // PlayerPrefab = playerPrefab.GetComponent<CharacterScript>();;
+            PlayerPrefab = MalePrefab.GetComponent<CharacterScript>();
             PhotonNetwork.OfflineMode = false;
             PhotonNetwork.NickName = "Pablo";
             PhotonNetwork.PhotonServerSettings.AppSettings.FixedRegion = "usw";
@@ -96,11 +99,9 @@ namespace Spaces {
 
         public override void OnConnectedToMaster() {
             base.OnConnectedToMaster();
-            Debug.Log("connected to master");
             OnClickConnectRoom();
         }
        public void OnClickConnectRoom() {
-           Debug.Log("zzzz world name " + publicWorldName);
             PhotonNetwork.JoinRoom(publicWorldName);
         }
 
