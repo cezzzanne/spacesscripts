@@ -54,7 +54,7 @@ namespace Spaces {
 
         public InnerNotifManagerScript innerNotifManagerScript;
 
-        public GameObject MalePrefab;
+        public GameObject MalePrefab, FemalePrefab;
         // world type is based on the type of world the user posseses (3 kinds) // roomID is to join the same photon room based on player id
 
 
@@ -147,7 +147,8 @@ namespace Spaces {
             // currentSkin = PlayerPrefs.GetString("CurrentSkin");
             // GameObject playerPrefab = Resources.Load<GameObject>("Characters/" + currentSkin);
             // PlayerPrefab = playerPrefab.GetComponent<CharacterScript>();
-            PlayerPrefab = MalePrefab.GetComponent<CharacterScript>();
+            GameObject selectedPrefab = (PlayerPrefs.GetInt("isMale") == 1) ? MalePrefab : FemalePrefab;
+            PlayerPrefab = selectedPrefab.GetComponent<CharacterScript>();
             PhotonNetwork.JoinRoom(roomIDToJoin);
         }
 

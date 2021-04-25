@@ -45,9 +45,8 @@ namespace Spaces {
 
         string publicWorldName;
 
-        // FirebaseFirestore db;
 
-        public GameObject MalePrefab;
+        public GameObject MalePrefab, FemalePrefab;
 
 
         void Awake() {
@@ -87,9 +86,8 @@ namespace Spaces {
             myUsername = PlayerPrefs.GetString("username");
             string currentSkin = PlayerPrefs.GetString("CurrentSkin");
             publicWorldName = PlayerPrefs.GetString("currentPublicWorld");
-            // GameObject playerPrefab = Resources.Load<GameObject>("Characters/" + currentSkin);
-            // PlayerPrefab = playerPrefab.GetComponent<CharacterScript>();;
-            PlayerPrefab = MalePrefab.GetComponent<CharacterScript>();
+            GameObject selectedPrefab = (PlayerPrefs.GetInt("isMale") == 1) ? MalePrefab : FemalePrefab;
+            PlayerPrefab = selectedPrefab.GetComponent<CharacterScript>();
             PhotonNetwork.OfflineMode = false;
             PhotonNetwork.NickName = "Pablo";
             PhotonNetwork.PhotonServerSettings.AppSettings.FixedRegion = "usw";

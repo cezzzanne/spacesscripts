@@ -62,7 +62,7 @@ namespace Spaces {
         private bool wardrobeOpen = false;
         MapPlayerScript mapPlayerScript;
 
-        private string username, roomID, myRoomID, accessories;
+        private string username, roomID, myRoomID;
 
         public List<GameObject> previousAccesories;
 
@@ -94,15 +94,14 @@ namespace Spaces {
             inPublicRoom = PlayerPrefs.GetInt("isInPublicWorld");
             friendsPreviousAccessories = new Dictionary<int, List<GameObject>>();
             itemLoader = GameObject.FindGameObjectWithTag("ItemLoader");
-            charSetup = PlayerPrefs.GetString("myCharacter");
-            CharacterCustomizationSetup setup = CharacterCustomizationSetup.DeserializeFromJson(charSetup);
-            GetComponent<CharacterCustomization>().SetCharacterSetup(setup);
             if (!photonView.IsMine) {
                 otherPlayer = true;
                 if (inPublicRoom == 1) {
                     ChatManager = (GameObject.FindGameObjectWithTag("ChatManager") as GameObject).GetComponent<PublicWorldChatManager>();
                 }
             } else {
+                charSetup = PlayerPrefs.GetString("myCharacter");
+                SetUpCharacter(charSetup);
                 mainCam = Resources.Load("Main Camera") as GameObject;
                 mainCam = Instantiate(mainCam);
                 PlayerFollow cameraScript = mainCam.GetComponent<PlayerFollow>();
@@ -110,10 +109,9 @@ namespace Spaces {
                 GameObject itemControllerObject = GameObject.FindGameObjectWithTag("ItemPlacementController") as GameObject;
                 PV = transform.GetComponent<PhotonView>();
                 username = PlayerPrefs.GetString("username");
-                // accessories = PlayerPrefs.GetString("Accessories");
                 previousAccesories = new List<GameObject>();
-                // PV.RPC("RPC_ChangeCharacterName", RpcTarget.AllBuffered, username, PV.ViewID); TODO: UNCOMMENT THIS
-                // PV.RPC("RPC_SetCharacterAccessories", RpcTarget.AllBuffered, accessories, PV.ViewID);
+                PV.RPC("RPC_ChangeCharacterName", RpcTarget.AllBuffered, username, PV.ViewID);
+                PV.RPC("RPC_SetCharacterAccessories", RpcTarget.AllBuffered, charSetup, PV.ViewID);
                 if (inPublicRoom == 1) {
                     ChatManager = (GameObject.FindGameObjectWithTag("ChatManager") as GameObject).GetComponent<PublicWorldChatManager>();
                     ChatManager.SetMainCharacter(this);
@@ -216,6 +214,12 @@ namespace Spaces {
             // Move store to first tent
         }
 
+        public void UpdateCharacter(string json) {
+            SetUpCharacter(json);
+            PV.RPC("RPC_UpdateCharacterAccessories", RpcTarget.AllBuffered, json, PV.ViewID);
+        }
+
+        // Below not being used anymore
         public void UpdateMyAccessories(string newAccessories) {
             PV.RPC("RPC_UpdateCharacterAccessories", RpcTarget.AllBuffered, newAccessories, PV.ViewID);
         }
@@ -276,17 +280,7 @@ namespace Spaces {
             PV.RPC("RPC_ReceiveMessage", RpcTarget.All, message, PV.ViewID);
         }
 
-        void OpenKeyboard() {
-            // need to instantiate input field by resource load
-            joystick.gameObject.SetActive(false);
-            keyboard = TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default, false, false, false);   
-            // Testing on unity editor    
-            toolbar.SetActive(true);
-            toolbar.transform.position = new Vector3(toolbar.transform.position.x, 15, toolbar.transform.position.z);
-            inputTransform = toolbar.transform.GetChild(0);
-            keyboardActive = true;
-            EventSystem.current.SetSelectedGameObject(inputTransform.gameObject, null);
-        }
+
 
         public bool OtherPlayer() {
             return otherPlayer;
@@ -358,10 +352,6 @@ namespace Spaces {
         private bool sitting = false;
         private Transform sittingOn;
         private AllowSitDownScript ChairScript;
-
-        // TODOSPACES : TEST FUNCTION
-
-        // Need to basically -> Set public world functionality
 
         public void ShowSitButton(Transform target) {
             if (otherPlayer) {
@@ -651,14 +641,13 @@ namespace Spaces {
         [PunRPC]
         void RPC_ChangeCharacterName(string name, int pvID) {
             // 0 = private; 1 = public
-            GameObject nameCanvas;
-            nameCanvas = PhotonView.Find(pvID).transform.GetChild(3).gameObject;
-            nameCanvas.SetActive(true);
-            TMPro.TextMeshProUGUI playerName = nameCanvas.transform.GetChild(0).GetChild(0).GetChild(0).GetComponent<TMPro.TextMeshProUGUI>();
             if (photonView.IsMine) {
-                Destroy(nameCanvas);
                 return;
             }
+            GameObject nameCanvas;
+            nameCanvas = PhotonView.Find(pvID).transform.GetChild(2).gameObject;
+            nameCanvas.SetActive(true);
+            TMPro.TextMeshProUGUI playerName = nameCanvas.transform.GetChild(0).GetChild(0).GetChild(0).GetComponent<TMPro.TextMeshProUGUI>();
             playerName.text = "@" + name;
             username = name;
         }
@@ -682,16 +671,26 @@ namespace Spaces {
 
         [PunRPC]
         void RPC_SetCharacterAccessories(string baseAcc, int pvID) {
-            string accessories = baseAcc;
-            List<GameObject> previousAccesories = new List<GameObject>();
-            friendsPreviousAccessories.Add(pvID, previousAccesories);
-            SetCharacterAccessories(baseAcc, previousAccesories, PhotonView.Find(pvID).transform);
+            // List<GameObject> previousAccesories = new List<GameObject>();
+            // friendsPreviousAccessories.Add(pvID, previousAccesories);
+            if (!photonView.IsMine) {
+                SetUpCharacter(baseAcc);
+            }
+            // SetCharacterAccessories(baseAcc, previousAccesories, PhotonView.Find(pvID).transform);
+        }
+
+        void SetUpCharacter(string acc) {
+            CharacterCustomizationSetup setup = CharacterCustomizationSetup.DeserializeFromJson(acc);
+            GetComponent<CharacterCustomization>().SetCharacterSetup(setup);
         }
 
         [PunRPC]
         public void RPC_UpdateCharacterAccessories(string newAccessories, int pvID) {
-            List<GameObject> prevAcc = friendsPreviousAccessories[pvID];
-            UpdateCharacterAccessories(newAccessories, prevAcc, PhotonView.Find(pvID).transform);
+            if (!photonView.IsMine) {
+                SetUpCharacter(newAccessories);
+            }
+            // List<GameObject> prevAcc = friendsPreviousAccessories[pvID];
+            // UpdateCharacterAccessories(newAccessories, prevAcc, PhotonView.Find(pvID).transform);
         }
 
         [PunRPC]

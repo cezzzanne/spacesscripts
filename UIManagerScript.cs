@@ -648,6 +648,7 @@ namespace Spaces {
         // far from optimal but I don't want to Find() more stuff in character script and I already have uimanager
         public void SetGamingManagerCharacter(CharacterScript cs) {
             GamingManager.GetComponent<GamingManager>().SetCharacterScript(cs);
+            customizer.SetCharacterScript(cs);
         }
 
         public void HideJoinGame() {

@@ -102,8 +102,18 @@ namespace Spaces {
 
         public bool inGame = false;
 
-        private List<int> availableShirts, availablePants, availableShoes, availableAccessories, availableHats = new List<int>();
+        public List<int> availableShirts, availablePants = new List<int>();
 
+        private List<int> availableShoes = new List<int>() {
+            -1
+        };
+        private List<int> availableHats = new List<int>() {
+            -1
+        };
+
+        private List<int> availableAccessories = new List<int>() {
+            -1
+        };
         public GameObject ExtrasPanel;
 
         void Start() {
@@ -173,7 +183,7 @@ namespace Spaces {
             CharacterCustomization.SetHairByIndex(index);
         }
         public void SetBeard() {
-            CharacterCustomization.SetBeardByIndex(index);
+            CharacterCustomization.SetBeardByIndex(index - 1);
         }
 
         public void SetShirt() {
@@ -183,6 +193,17 @@ namespace Spaces {
         public void SetPants() {
             CharacterCustomization.SetElementByIndex(ClothesPartType.Pants, availablePants[index]);
             hasPants = true;
+        }
+        public void SetShoes() {
+            CharacterCustomization.SetElementByIndex(ClothesPartType.Shoes, availableShoes[index]);
+        }
+
+        public void SetHat() {
+            CharacterCustomization.SetElementByIndex(ClothesPartType.Hat, availableHats[index]);
+        }
+
+        public void SetAccessory() {
+            CharacterCustomization.SetElementByIndex(ClothesPartType.Accessory, availableAccessories[index]);
         }
 
         public void SetSkinColor() {
@@ -259,7 +280,7 @@ namespace Spaces {
                 PlaceItem = () => {SetHair();};
                 ZoomInOnFace();
             } else if (type == 1) {
-                maxIndex = CharacterCustomization.beardPresets.Count;
+                maxIndex = CharacterCustomization.beardPresets.Count + 1;
                 PlaceItem = () => {SetBeard();};
                 ZoomInOnFace();
             } else if (type == 2) {
@@ -285,7 +306,7 @@ namespace Spaces {
             } else if (type == 7) {
                 PlaceItem = ()=> {SetHeight();};
                 BodySlider.minValue = 0;
-                BodySlider.maxValue = 0.16f;
+                BodySlider.maxValue = 0.08f;
                 BodySlider.value = BodySlider.maxValue / 2;
                 ZoomOutOnFace();
             } else if (type == 8) {
@@ -307,7 +328,17 @@ namespace Spaces {
                 BodySlider.value = 0;
                 ZoomOutOnFace();
             } else if (type == 11) {
-                // if no items then just show they don't have items yet
+                maxIndex = availableShoes.Count;
+                PlaceItem = () => {SetShoes();};
+                ZoomOutOnFace();
+            } else if (type == 12) {
+                maxIndex = availableHats.Count;
+                PlaceItem = () => {SetHat();};
+                ZoomOutOnFace();
+            } else if (type == 13) {
+                maxIndex = availableAccessories.Count;
+                PlaceItem = () => {SetAccessory();};
+                ZoomInOnFace();
             }
         }
 
@@ -315,7 +346,7 @@ namespace Spaces {
             currentSliderValue = i;
             PlaceItem();           
         }
-        // specific functions for details
+        // specific functions for details 
 
         public void SetFaceShape() {
             CharacterCustomization.SetFaceShape((FaceShapeType)(currentFaceTypeIndex), faceShapeSliders[currentFaceShapeSliderIndex].value);
@@ -360,7 +391,7 @@ namespace Spaces {
         }
 
         void TogglePickItem(bool open) {
-            if (currentBrowsingType > 6) {
+            if (currentBrowsingType > 6 && currentBrowsingType < 11) {
                 BodySliderObject.SetActive(open);
             } else {
                 NextItemButton.SetActive(open);
@@ -471,6 +502,8 @@ namespace Spaces {
 
         PlayerFollow gameCam;
 
+        CharacterScript character;
+
         public void InGameStart() {
             isMale = PlayerPrefs.GetInt("isMale") == 1;
             charSetup = PlayerPrefs.GetString("myCharacter");
@@ -505,14 +538,31 @@ namespace Spaces {
         public void FinishedEditingInGame() {
             CharacterCustomizationSetup characterCustomizationSetup = CharacterCustomization.GetSetup();
             string json = characterCustomizationSetup.SerializeToJson();
-            PlayerPrefs.SetString("myCharacter", json);    
+            PlayerPrefs.SetString("myCharacter", json);  
+            character.UpdateCharacter(json);
             CancelEditing();
         }
 
         public void AddAvailableItems(StoreItem item) {
-
-            // it includes name, type and location (location being the index of the item)
+            // index;type (0=accessory, 1=hat, 2=pants, 3=shirt, 4=shoes)
+            string[] itemData = item.location.Split(';');
+            int index = int.Parse(itemData[0]);
+            int type = int.Parse(itemData[1]);
+            if (type == 0) {
+                availableAccessories.Add(index);
+            } else if (type == 1) {
+                availableHats.Add(index);
+            } else if (type == 2) {
+                availablePants.Add(index);
+            } else if (type == 3) {
+                availableShirts.Add(index);
+            } else if (type == 4) {
+                availableShoes.Add(index);
+            }
         }
 
+        public void SetCharacterScript(CharacterScript cs) {
+            character = cs;
+        }
     }
 }

@@ -99,7 +99,7 @@ namespace Spaces {
                     storeDataSkins = new List<StoreItem>();
                     StoreResponse fullData = JsonUtility.FromJson<StoreResponse>(response);
                     foreach(StoreItem item in fullData.data) {
-                        if (item.type == "accessory") {
+                        if (item.type == "skin") {
                             // CharacterChangeScript.AddToCharacterObjects(item.type == "skin", item);
                             CharacterCustomizer.AddAvailableItems(item);
                         } else if (item.type == "object") {
