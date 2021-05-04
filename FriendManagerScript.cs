@@ -111,6 +111,8 @@ namespace Spaces {
 
         public GameObject SummonGroupInput;
 
+        public GameObject CreateGroupInput;
+
         void Start() {
             username = PlayerPrefs.GetString("username");
             Debug.Log("USSERNAME : " + username);
@@ -274,6 +276,7 @@ namespace Spaces {
             // load new members
             StartCoroutine(LoadNewMembers(code, group));
         }
+        
 
         IEnumerator LoadNewMembers(string groupCode, GroupData currGroup) {
             uiManagerScript.LoadingNewMemberToggle(true);
@@ -326,6 +329,18 @@ namespace Spaces {
             notification["contents"] = new Dictionary<string, string>() { {"en",  contents} };
             notification["include_player_ids"] = new List<string>() { playerID };
             OneSignal.PostNotification(notification);
+        }
+
+        public void SubmitForm() {
+            string text = CreateGroupInput.GetComponent<Text>().text;
+            if (text.Trim() == "") {
+                CreateGroupInput.SetActive(false);
+                CreateGroupInput.SetActive(true);
+                return;
+            }
+            FriendsPhones friendsPhones = new FriendsPhones(){numbers = new List<string>()};
+            uiManagerScript.LoadingGroupCreation();
+            StartCoroutine(SendGroupRequest(text, false, friendsPhones, ()=> {uiManagerScript.ResultGroupCreation(true);}, ()=> {uiManagerScript.ResultGroupCreation(false);} ));
         }
 
 

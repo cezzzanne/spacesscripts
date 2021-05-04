@@ -116,9 +116,12 @@ namespace Spaces {
         };
         public GameObject ExtrasPanel;
 
+        public GameObject DummyMale, DummyFemale;
+
         void Start() {
             skinColors = new List<Color>() {
                 new Color(0.9058824f, 0.654902f, 0.5137255f, 1f),
+                new Color(0.9528301954269409f, 0.7022832632064819f, 0.624733030796051f, 1f),
                 new Color(0.9058824f, 0.5764706f, 0.4470588f, 1f),
                 new Color(0.8901961f, 0.5372549f, 0.4117647f, 1f),
                 new Color(0.8196079f, 0.4666667f, 0.3372549f, 1f),
@@ -142,6 +145,8 @@ namespace Spaces {
                 new Color(0.9960784f, 0.9764706f, 0.6156863f, 1f),
                 new Color(0.1137255f, 0.07450981f, 0f, 1f),
                 new Color(0f, 0.05882353f, 0f, 1f),
+                new Color(1f, 0.9529412f, 0.5607843f, 1f),
+                new Color(0.1647059f, 0.09803922f, 0f, 1f),
                 new Color(0.7764706f, 0.3058824f, 0f, 1f),
                 new Color(0.945098f, 0.3803922f, 0f, 1f),
                 new Color(1f, 1f, 1f, 1f),
@@ -156,14 +161,13 @@ namespace Spaces {
                 InGameStart();
                 return;
             }
-            int menOrWoman = UnityEngine.Random.Range(-1, 1);
-            if (menOrWoman < 0) {
-                MaleCustomizer.gameObject.SetActive(true);
-                MaleCustomizer.Randomize();
-            } else {
-                FemaleCustomizer.gameObject.SetActive(true);
-                FemaleCustomizer.Randomize();
-            }
+            string menjson =  "{\"Hair\":7,\"Hat\":-1,\"TShirt\":9,\"Pants\":7,\"Shoes\":4,\"Beard\":-1,\"Accessory\":9,\"Fat\":0.0,\"Muscles\":1.9389452934265137,\"Slimness\":0.0,\"Thin\":72.66344451904297,\"BreastSize\":0.0,\"Neck_Width\":0.0,\"Ear_Size\":0.0,\"Ear_Angle\":0.0,\"Jaw_Width\":0.0,\"Jaw_Shift\":0.0,\"Jaw_Offset\":0.0,\"Cheek_Size\":0.0,\"Chin_Offset\":0.0,\"Eye_Width\":0.0,\"Eye_Form\":100.0,\"Eye_InnerCorner\":0.0,\"Eye_Corner\":0.0,\"Eye_Rotation\":0.0,\"Eye_Offset\":0.0,\"Eye_ScaleX\":0.0,\"Eye_ScaleY\":0.0,\"Eye_Size\":0.0,\"Eye_Close\":0.0,\"Eye_Height\":0.0,\"Brow_Height\":0.0,\"Brow_Shape\":0.0,\"Brow_Thickness\":0.0,\"Brow_Length\":0.0,\"Nose_Length\":0.0,\"Nose_Size\":0.0,\"Nose_Angle\":0.0,\"Nose_Offset\":0.0,\"Nose_Bridge\":0.0,\"Nose_Hump\":0.0,\"Mouth_Offset\":0.0,\"Mouth_Width\":0.0,\"Mouth_Size\":0.0,\"Mouth_Open\":0.0,\"Mouth_Bulging\":0.0,\"LipsCorners_Offset\":0.0,\"Face_Form\":0.0,\"Chin_Width\":0.0,\"Chin_Form\":0.0,\"Head_Offset\":0.0,\"Height\":0.0,\"Smile\":0.0,\"Sadness\":0.0,\"Surprise\":0.0,\"Thoughtful\":0.0,\"Angry\":0.0,\"HeadSize\":0.0,\"SkinColor\":{\"r\":0.9528301954269409,\"g\":0.7022832632064819,\"b\":0.624733030796051,\"a\":1.0},\"EyeColor\":{\"r\":0.23529411852359773,\"g\":0.0,\"b\":0.0,\"a\":1.0},\"HairColor\":{\"r\":0.0,\"g\":0.0,\"b\":0.0,\"a\":1.0},\"UnderpantsColor\":{\"r\":0.5660377740859985,\"g\":0.5660377740859985,\"b\":0.5660377740859985,\"a\":1.0}}";
+            string femalejson = "{\"Hair\":0,\"Hat\":-1,\"TShirt\":6,\"Pants\":4,\"Shoes\":0,\"Beard\":-1,\"Accessory\":-1,\"Fat\":0.0,\"Muscles\":0.0,\"Slimness\":110.0,\"Thin\":0.0,\"BreastSize\":1.8776158094406129,\"Neck_Width\":0.0,\"Ear_Size\":0.0,\"Ear_Angle\":0.0,\"Jaw_Width\":0.0,\"Jaw_Shift\":0.0,\"Jaw_Offset\":0.0,\"Cheek_Size\":0.0,\"Chin_Offset\":0.0,\"Eye_Width\":0.0,\"Eye_Form\":0.0,\"Eye_InnerCorner\":0.0,\"Eye_Corner\":0.0,\"Eye_Rotation\":0.0,\"Eye_Offset\":0.0,\"Eye_ScaleX\":0.0,\"Eye_ScaleY\":0.0,\"Eye_Size\":0.0,\"Eye_Close\":0.0,\"Eye_Height\":0.0,\"Brow_Height\":0.0,\"Brow_Shape\":0.0,\"Brow_Thickness\":0.0,\"Brow_Length\":0.0,\"Nose_Length\":0.0,\"Nose_Size\":0.0,\"Nose_Angle\":0.0,\"Nose_Offset\":0.0,\"Nose_Bridge\":0.0,\"Nose_Hump\":0.0,\"Mouth_Offset\":0.0,\"Mouth_Width\":0.0,\"Mouth_Size\":0.0,\"Mouth_Open\":0.0,\"Mouth_Bulging\":0.0,\"LipsCorners_Offset\":0.0,\"Face_Form\":0.0,\"Chin_Width\":0.0,\"Chin_Form\":0.0,\"Head_Offset\":0.0,\"Height\":-0.008261614479124546,\"Smile\":0.0,\"Sadness\":0.0,\"Surprise\":0.0,\"Thoughtful\":0.0,\"Angry\":0.0,\"HeadSize\":0.0,\"SkinColor\":{\"r\":0.9528301954269409,\"g\":0.7022832632064819,\"b\":0.624733030796051,\"a\":1.0},\"EyeColor\":{\"r\":0.7568627595901489,\"g\":0.35686275362968447,\"b\":0.0,\"a\":1.0},\"HairColor\":{\"r\":1.0,\"g\":0.886274516582489,\"b\":0.615686297416687,\"a\":1.0},\"UnderpantsColor\":{\"r\":0.27358490228652956,\"g\":0.27358490228652956,\"b\":0.27358490228652956,\"a\":1.0}}";
+            CharacterCustomizationSetup maleCust = CharacterCustomizationSetup.DeserializeFromJson(menjson);
+            DummyMale.GetComponent<CharacterCustomization>().SetCharacterSetup(maleCust);
+            CharacterCustomizationSetup femaleCust = CharacterCustomizationSetup.DeserializeFromJson(femalejson);
+            DummyFemale.GetComponent<CharacterCustomization>().SetCharacterSetup(femaleCust);
+            DummyFemale.GetComponent<CharacterCustomization>().SetFaceShape(FaceShapeType.Eye_Form, 100);
         }
 
         public void GoToSexSelection(CameraTour ct) {
@@ -318,7 +322,7 @@ namespace Spaces {
             } else if (type == 9) {
                 PlaceItem = ()=> {BodyThin();};
                 BodySlider.minValue = 0;
-                BodySlider.maxValue = 100;
+                BodySlider.maxValue = 120;
                 BodySlider.value = 0;
                 ZoomOutOnFace();
             } else if (type == 10) {
@@ -477,14 +481,14 @@ namespace Spaces {
         }
 
         public void SelectSex(bool man) {
+            DummyFemale.SetActive(false);
+            DummyMale.SetActive(false);
             isMale = man;
             if (man) {
                 CharacterCustomization = MaleCustomizer;
-                FemaleCustomizer.gameObject.SetActive(false);
                 availableShirts = new List<int>(){0, 1};
             } else {
                 CharacterCustomization = FemaleCustomizer;
-                MaleCustomizer.gameObject.SetActive(false);
                 availableShirts = new List<int>() {1, 2};
             }
             SexSelectionPanel.SetActive(false);
@@ -545,19 +549,23 @@ namespace Spaces {
 
         public void AddAvailableItems(StoreItem item) {
             // index;type (0=accessory, 1=hat, 2=pants, 3=shirt, 4=shoes)
-            string[] itemData = item.location.Split(';');
-            int index = int.Parse(itemData[0]);
-            int type = int.Parse(itemData[1]);
-            if (type == 0) {
-                availableAccessories.Add(index);
-            } else if (type == 1) {
-                availableHats.Add(index);
-            } else if (type == 2) {
-                availablePants.Add(index);
-            } else if (type == 3) {
-                availableShirts.Add(index);
-            } else if (type == 4) {
-                availableShoes.Add(index);
+            try {
+                string[] itemData = item.location.Split(';');
+                int index = int.Parse(itemData[0]);
+                int type = int.Parse(itemData[1]);
+                if (type == 0) {
+                    availableAccessories.Add(index);
+                } else if (type == 1) {
+                    availableHats.Add(index);
+                } else if (type == 2) {
+                    availablePants.Add(index);
+                } else if (type == 3) {
+                    availableShirts.Add(index);
+                } else if (type == 4) {
+                    availableShoes.Add(index);
+                }
+            } catch {
+                print("bad item");
             }
         }
 

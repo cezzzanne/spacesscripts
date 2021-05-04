@@ -164,7 +164,7 @@ namespace Spaces {
         void SetParticipateInConvoCollider() {
             BoxCollider collider = gameObject.AddComponent<BoxCollider>();
             collider.isTrigger = true;
-            collider.center = new Vector3(0, 3, 0);
+            collider.center = new Vector3(0, 1, 0);
             collider.size = collider.size * 2;
         }
 
@@ -354,21 +354,20 @@ namespace Spaces {
         private AllowSitDownScript ChairScript;
 
         public void ShowSitButton(Transform target) {
-            if (otherPlayer) {
-                sittingOn = target;
-                ChairScript = sittingOn.GetComponent<AllowSitDownScript>();
-                return;
-            }
-            if (!sitting) {
-                print("zzzzz ui manager : " + uiManager);
-                if (inPublicRoom == 1) {
-                    uiManager.GetComponent<UIManagerPublicScript>().ToggleSittingButton(true);
-                } else {
-                    uiManager.GetComponent<UIManagerScript>().ToggleSittingButton(true);
-                }
-            }
-            sittingOn = target;
-            ChairScript = sittingOn.GetComponent<AllowSitDownScript>();
+            // if (otherPlayer) {
+            //     sittingOn = target;
+            //     ChairScript = sittingOn.GetComponent<AllowSitDownScript>();
+            //     return;
+            // }
+            // if (!sitting) {
+            //     if (inPublicRoom == 1) {
+            //         uiManager.GetComponent<UIManagerPublicScript>().ToggleSittingButton(true);
+            //     } else {
+            //         uiManager.GetComponent<UIManagerScript>().ToggleSittingButton(true);
+            //     }
+            // }
+            // sittingOn = target;
+            // ChairScript = sittingOn.GetComponent<AllowSitDownScript>();
         }
 
         private void SitDown() {
@@ -460,7 +459,7 @@ namespace Spaces {
 
         void Turn() {
             targetRotation *= Quaternion.AngleAxis(rotateVel * turnInput * Time.deltaTime, Vector3.up);
-            animator.SetFloat("TurnDirection", turnInput);
+            // animator.SetFloat("TurnDirection", turnInput);
             transform.rotation = targetRotation;//Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
             // if (transform.position.y > 0.3) {
             //     Vector3 pos = transform.position;
@@ -520,7 +519,6 @@ namespace Spaces {
                 }
                 if (animator) {
                     animator.SetFloat("Speed", forwardInp);
-                    animator.SetFloat("TurnDirection", turnInp);
                 }
             }
         }
