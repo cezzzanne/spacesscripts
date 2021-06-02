@@ -37,9 +37,9 @@ namespace Spaces {
                 float height2 = collider2.transform.localScale.y * ((BoxCollider)collider2).size.y;
                 Vector3 dimensions2 = new Vector3(length2, height2, width2);
 
-                pos.y += (dimensions2.y - 0.4f);
+                // pos.y += (dimensions2.y - 0.4f);
                 character.transform.position = pos;
-                character.transform.Translate(new Vector3(dimensions.x / 2, 0, 0), transform); 
+                character.transform.Translate(new Vector3(dimensions.x / 2, 0.1f, dimensions.z / 3.2f), transform); 
                 character.transform.rotation = transform.rotation*Quaternion.AngleAxis(180, Vector3.up);
         }
 

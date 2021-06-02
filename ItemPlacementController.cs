@@ -275,7 +275,6 @@ namespace Spaces {
                     MeshRenderer meshRenderer = currentPlaceableObject.GetComponentInChildren<MeshRenderer>();
                     Transform tr = currentPlaceableObject.transform;
                     maxWidthObject = bCollider.bounds.size.x >= bCollider.bounds.size.z ? bCollider.bounds.size.x : bCollider.bounds.size.z;
-                    characterWidth = target.GetComponent<CapsuleCollider>().bounds.size.x;
                     Vector3 tempPos = target.position;
                     target.gameObject.SetActive(false);
                     target.GetComponent<CharacterScript>().SetMainCamEditing(currentPlaceableObject.transform, true); //  new

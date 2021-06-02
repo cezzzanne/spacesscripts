@@ -26,6 +26,11 @@ namespace Spaces {
             }
         }
 
+        void OnDestroy() {
+            DatabaseReference reference = FirebaseDatabase.DefaultInstance.RootReference;
+            reference.Child("treasure").ValueChanged -= HandleValueChanged;
+        }
+
         public void SetHuntManager(TreasureHuntScript ths) {
             huntScript = ths;
         }

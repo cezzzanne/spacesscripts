@@ -59,7 +59,6 @@ namespace Spaces {
             }
             if (questionText != "0") {
                 question.text = "Well done! Now ... for $200 .. one last question: \n " + questionText;
-                print("cccc pos " + pos);
                 Vector3 chestPos = new Vector3(float.Parse(pos[0]), float.Parse(pos[1]), float.Parse(pos[2]));
                 Treasure = Instantiate(TreasurePrefab) as GameObject;
                 Treasure.transform.position = chestPos;
@@ -81,8 +80,6 @@ namespace Spaces {
 
         public void AnswerQuestion() {
             AnsweredIncorrectly.SetActive(false);
-            print("cccc answer lengths " + questionAnswer.Trim().ToLower().Length + " " + answer.text.Trim().ToLower().Length);
-            print("cccc answer vals " + questionAnswer.Trim().ToLower() + " " + answer.text.Trim().ToLower());
             if (answer.text.Trim().ToLower().Contains(questionAnswer.Trim().ToLower())) {
                 Destroy(Treasure);
                 QuestionModal.SetActive(false);

@@ -51,6 +51,10 @@ namespace Spaces {
 
         public TMPro.TextMeshProUGUI DeliveryWaitMessage;
 
+        public GameObject TakeFlyerButton, LeaveFylerButton;
+
+        public FlyerGameScript flyerGameScript;
+
 
         void Start() {
             // SetInitialState();
@@ -138,8 +142,9 @@ namespace Spaces {
             }
         }
 
-        public void AddPlayerToCompass(Transform player) {
-            Compass.GetComponent<CompassScript>().SetPlayer(player);
+        public void AddPlayerToOtherComponents(CharacterScript player) {
+            Compass.GetComponent<CompassScript>().SetPlayer(player.transform);
+            flyerGameScript.SetPlayer(player);
         }
 
         public void CanDoDeliveryIn(TimeSpan time) {
@@ -184,6 +189,24 @@ namespace Spaces {
         public void HideFinishedModal() {
             DeliveryJobFinished.SetActive(false);
             ToggleInitialState(true);
+        }
+
+        public void ToggleFylerButton(bool open) {
+            TakeFlyerButton.SetActive(open);
+        }
+
+        public void TakeFlyer() {
+            flyerGameScript.TakeFlyer();
+            GoBackHomeB.SetActive(false);
+            TakeFlyerButton.SetActive(false);
+            LeaveFylerButton.SetActive(true);
+        }
+
+        public void LeaveFlyer() {
+            TakeFlyerButton.SetActive(false);
+            flyerGameScript.LeaveFlyer();
+            LeaveFylerButton.SetActive(false);
+            GoBackHomeB.SetActive(true);
         }
     }
 }

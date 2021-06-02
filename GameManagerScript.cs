@@ -144,9 +144,6 @@ namespace Spaces {
         }
 
        public void OnClickConnectRoom() {
-            // currentSkin = PlayerPrefs.GetString("CurrentSkin");
-            // GameObject playerPrefab = Resources.Load<GameObject>("Characters/" + currentSkin);
-            // PlayerPrefab = playerPrefab.GetComponent<CharacterScript>();
             GameObject selectedPrefab = (PlayerPrefs.GetInt("isMale") == 1) ? MalePrefab : FemalePrefab;
             PlayerPrefab = selectedPrefab.GetComponent<CharacterScript>();
             PhotonNetwork.JoinRoom(roomIDToJoin);

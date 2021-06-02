@@ -120,18 +120,7 @@ namespace Spaces {
                     GameObject.FindGameObjectWithTag("Canvas").GetComponent<InputHandler>().SetTarget(this);
                     itemLoader.GetComponent<ItemLoaderStore>().SetMainCam(mainCam.GetComponent<PlayerFollow>());
                     uiManager = itemLoader.GetComponent<ItemLoaderStore>().ReturnUIManager();
-                    uiManager.GetComponent<UIManagerPublicScript>().AddPlayerToCompass(transform);
-                    // CHANGED Back
-                    // itemLoader.GetComponent<ItemLoaderv2>().SetCamera(mainCam.GetComponent<PlayerFollow>());
-                    // iManager = itemLoader.GetComponent<ItemLoaderv2>().ReturnUIManager();
-                    // GameObject itemController = GameObject.FindGameObjectWithTag("ItemPlacementController");
-                    // itemController.GetComponent<ItemPlacementControllerV2>().SetTarget(transform);
-                    // CharacterChange charChange = GameObject.FindGameObjectWithTag("CharacterChange").GetComponent<CharacterChange>();
-                    // charChange.SetTargetCharacter(this);
-                    // charChange.UpdateAccessories(accessories);
-                    // GameObject notificationManager = GameObject.FindGameObjectWithTag("NotificationManager");
-                    // notificationManager.GetComponent<InnerNotifManagerScript>().SetCharacterTarget(transform, username, myRoomID);
-                    // CHANGED Back
+                    uiManager.GetComponent<UIManagerPublicScript>().AddPlayerToOtherComponents(this);
                     uiManager.GetComponent<UIManagerPublicScript>().SetSitDownListeners(SitDown, StandUp);
                     SetParticipateInConvoCollider();
                     StartCoroutine(ActivateChat());
@@ -350,24 +339,27 @@ namespace Spaces {
 
 
         private bool sitting = false;
+
+        private bool flying = false;
+
         private Transform sittingOn;
         private AllowSitDownScript ChairScript;
 
         public void ShowSitButton(Transform target) {
-            // if (otherPlayer) {
-            //     sittingOn = target;
-            //     ChairScript = sittingOn.GetComponent<AllowSitDownScript>();
-            //     return;
-            // }
-            // if (!sitting) {
-            //     if (inPublicRoom == 1) {
-            //         uiManager.GetComponent<UIManagerPublicScript>().ToggleSittingButton(true);
-            //     } else {
-            //         uiManager.GetComponent<UIManagerScript>().ToggleSittingButton(true);
-            //     }
-            // }
-            // sittingOn = target;
-            // ChairScript = sittingOn.GetComponent<AllowSitDownScript>();
+            if (otherPlayer) {
+                sittingOn = target;
+                ChairScript = sittingOn.GetComponent<AllowSitDownScript>();
+                return;
+            }
+            if (!sitting) {
+                if (inPublicRoom == 1) {
+                    uiManager.GetComponent<UIManagerPublicScript>().ToggleSittingButton(true);
+                } else {
+                    uiManager.GetComponent<UIManagerScript>().ToggleSittingButton(true);
+                }
+            }
+            sittingOn = target;
+            ChairScript = sittingOn.GetComponent<AllowSitDownScript>();
         }
 
         private void SitDown() {
@@ -450,11 +442,34 @@ namespace Spaces {
             PV.RPC("RPC_StandUp", RpcTarget.AllBuffered, PV.ViewID);
         }
 
+        private float flyerAltitude = 0.0f;
+        private float gravityValue = -9.81f;
+
+
+        public void SetFlyerAltitude(float up) {
+            flyerAltitude = up;
+        }
+
         void Run() {
-            Vector3 newPos = transform.position + (transform.forward * forwardInput * forwardVel * Time.deltaTime * 55);
-            // transform.position = newPos; //Vector3.Lerp(transform.position, newPos, Time.deltaTime * 10f);
-            characterController.SimpleMove(transform.forward * forwardInput * forwardVel * 40);
-            animator.SetFloat("Speed", forwardInput);
+            if (flying) {
+                float moveSpeed = 5.0f;
+                float dt = Time.deltaTime;
+                float dy =  0;
+                if(forwardInput > 0.2f)
+                {
+                    dy = moveSpeed * dt;
+                } else
+                {
+                    dy -= moveSpeed * dt;
+                }
+                float dx = turnInput * dt * moveSpeed;
+                float dz =  forwardInput * dt * moveSpeed;
+                characterController.Move(transform.TransformDirection(new Vector3(dx * 1.5f, dy * 0.3f, dz * 1.5f)));
+            } else {
+                Vector3 newPos = transform.position + (transform.forward * forwardInput * forwardVel * Time.deltaTime * 55);
+                characterController.SimpleMove(transform.forward * forwardInput * forwardVel * 40);
+                animator.SetFloat("Speed", forwardInput);
+            }
         }
 
         void Turn() {
@@ -471,7 +486,6 @@ namespace Spaces {
 
           public static void RefreshInstance(ref CharacterScript player, CharacterScript prefab ) {
               Vector3 pos;
-              Debug.Log("zzzz refreshed instance ");
               int publicWorld = PlayerPrefs.GetInt("isInPublicWorld");
               if (publicWorld == 1) {
                   string worldType = PlayerPrefs.GetString("currentPublicWorld");
@@ -517,7 +531,7 @@ namespace Spaces {
                     transform.rotation = Quaternion.Lerp(prevRot, rot, Time.deltaTime * (float)lastUpdatetime);
                     lastUpdatetime = info.SentServerTime;
                 }
-                if (animator) {
+                if (animator && !flying) {
                     animator.SetFloat("Speed", forwardInp);
                 }
             }
@@ -556,6 +570,8 @@ namespace Spaces {
             } else if (other.gameObject.name == "job") {
                 int jobType = int.Parse(other.transform.GetChild(0).gameObject.name);
                 uiManager.GetComponent<UIManagerPublicScript>().ToggleJobButton(true, jobType);
+            } else if (other.gameObject.name == "flyer" && !flying) {
+                uiManager.GetComponent<UIManagerPublicScript>().ToggleFylerButton(true);
             }
         }
 
@@ -589,6 +605,8 @@ namespace Spaces {
                 }
             } else if (other.gameObject.name == "job") {
                 uiManager.GetComponent<UIManagerPublicScript>().ToggleJobButton(false, 0);
+            } else if (other.gameObject.name == "flyer") {
+                uiManager.GetComponent<UIManagerPublicScript>().ToggleFylerButton(false);
             }
         }
 
@@ -605,6 +623,40 @@ namespace Spaces {
             uiManager.GetComponent<UIManagerScript>().HideJoinGame();
         }
 
+        // FLYER SCRIPTS
+
+        public void TakeFlyer() {
+            animator.SetTrigger("isSitting");
+            flying = true;
+            transform.GetChild(3).gameObject.SetActive(true);
+            PV.RPC("RPC_TakeFlyer", RpcTarget.AllBuffered);
+        }
+
+        public void LeaveFlyer() {
+            animator.SetTrigger("isStanding");
+            flying = false;
+            GetComponent<CharacterController>().enabled = true;
+            transform.GetChild(3).gameObject.SetActive(false);
+            PV.RPC("RPC_LeaveFlyer", RpcTarget.AllBuffered);
+        }
+
+        [PunRPC]
+        void RPC_TakeFlyer() {
+            if (!photonView.IsMine) {
+                flying = true;
+                animator.SetTrigger("isSitting");
+                transform.GetChild(3).gameObject.SetActive(true);
+            }
+        }
+
+        [PunRPC]
+        void RPC_LeaveFlyer() {
+            if (!photonView.IsMine) {
+                flying = false;
+                animator.SetTrigger("isStanding");
+                transform.GetChild(3).gameObject.SetActive(false);
+            }
+        }
 
         public void SetGame(string name, string code) {
             currentGameCode = code;
@@ -612,6 +664,7 @@ namespace Spaces {
             inGame = true;
             PV.RPC("RPC_SetCharacterGame", RpcTarget.AllBuffered, PV.ViewID, currentGameType, currentGameCode);
         }
+
 
         public void LeftGame() {
             currentGameCode = "";
