@@ -4,6 +4,7 @@ using UnityEngine;
 using SA.iOS.UIKit;
 using SA.iOS.Photos;
 using SA.iOS.Social;
+using AdvancedCustomizableSystem;
 
 namespace Spaces {
     public class PhotoManagerPublicScript : MonoBehaviour {
@@ -24,9 +25,19 @@ namespace Spaces {
 
         public GameObject uiManager;
 
+        CharacterCustomization characterCustomization;
 
-        public void SetMainCam(PlayerFollow cam) {
+
+        public void ShareProperties(PlayerFollow cam, Transform character) {
             mainCam = cam;
+            characterCustomization = character.GetComponent<CharacterCustomization>();
+        }
+
+        public void SetEmotion(int index) {
+            var emotion = characterCustomization.emotionPresets[index];
+            if (emotion != null) {
+                characterCustomization.PlayEmotion(emotion.name, 3.5f, 2f);
+            }
         }
 
         public void ToggleSitDownPerspective() {
@@ -113,6 +124,7 @@ namespace Spaces {
             CancelScreenShotB.SetActive(!isTakingShot);
             ScreenshotLogo.SetActive(isTakingShot);
             ScreenshotName.SetActive(isTakingShot);
+            uiManager.GetComponent<UIManagerPublicScript>().ToggleEmotions(!isTakingShot);
         }
 
         public void CaputreScreenshotResult(bool success) {

@@ -278,9 +278,9 @@ namespace Spaces {
         }
 
 
-        public void SetMainCam(PlayerFollow cam) {
+        public void ShareProperties(PlayerFollow cam, Transform character) {
             mainCam = cam;
-            PhotoManager.SetMainCam(cam);
+            PhotoManager.ShareProperties(cam, character);
         }
 
 

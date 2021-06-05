@@ -118,7 +118,7 @@ namespace Spaces {
                     publicWorldInterestGroup = -1;
                     currentlyTalkingTo = "";
                     GameObject.FindGameObjectWithTag("Canvas").GetComponent<InputHandler>().SetTarget(this);
-                    itemLoader.GetComponent<ItemLoaderStore>().SetMainCam(mainCam.GetComponent<PlayerFollow>());
+                    itemLoader.GetComponent<ItemLoaderStore>().ShareProperties(mainCam.GetComponent<PlayerFollow>(), transform);
                     uiManager = itemLoader.GetComponent<ItemLoaderStore>().ReturnUIManager();
                     uiManager.GetComponent<UIManagerPublicScript>().AddPlayerToOtherComponents(this);
                     uiManager.GetComponent<UIManagerPublicScript>().SetSitDownListeners(SitDown, StandUp);
@@ -341,6 +341,8 @@ namespace Spaces {
         private bool sitting = false;
 
         private bool flying = false;
+
+        private bool racing = false;
 
         private Transform sittingOn;
         private AllowSitDownScript ChairScript;
@@ -640,12 +642,39 @@ namespace Spaces {
             PV.RPC("RPC_LeaveFlyer", RpcTarget.AllBuffered);
         }
 
+        public void TakeRacingFlyer() {
+            animator.SetTrigger("isSitting");
+            flying = true;
+            racing = true;
+            transform.GetChild(4).gameObject.SetActive(true);
+            PV.RPC("RPC_TakeRacingFlyer", RpcTarget.AllBuffered);
+        }
+
+        public void LeaveRacingFlyer() {
+            animator.SetTrigger("isStanding");
+            flying = false;
+            racing = false;
+            GetComponent<CharacterController>().enabled = true;
+            transform.GetChild(4).gameObject.SetActive(false);
+            PV.RPC("RPC_LeaveRacingFlyer", RpcTarget.AllBuffered);
+        }
+
         [PunRPC]
         void RPC_TakeFlyer() {
             if (!photonView.IsMine) {
                 flying = true;
                 animator.SetTrigger("isSitting");
                 transform.GetChild(3).gameObject.SetActive(true);
+            }
+        }
+
+        [PunRPC]
+        void RPC_TakeRacingFlyer() {
+            if (!photonView.IsMine) {
+                flying = true;
+                racing = true;
+                animator.SetTrigger("isSitting");
+                transform.GetChild(4).gameObject.SetActive(true);
             }
         }
 
@@ -658,6 +687,15 @@ namespace Spaces {
             }
         }
 
+        [PunRPC]
+        void RPC_LeaveRacingFlyer() {
+            if (!photonView.IsMine) {
+                flying = false;
+                racing = false;
+                animator.SetTrigger("isStanding");
+                transform.GetChild(4).gameObject.SetActive(false);
+            }
+        }
         public void SetGame(string name, string code) {
             currentGameCode = code;
             currentGameType = name;

@@ -55,6 +55,18 @@ namespace Spaces {
 
         public FlyerGameScript flyerGameScript;
 
+        public GameObject SmileEmotion, TalkEmotion, SurpriseEmotion, ThoughtfulEmotion, AngyEmotion, EatingEmotion;
+
+        public GameObject JoinRaceButton;
+
+        public RacingManagerScript racingManagerScript;
+
+        public GameObject RacingLobbyPanel;
+
+        public GameObject RacingButtonPrefab, RacingManagerButtonPrefab;
+
+        public GameObject StartRaceButton, RaceUnavailableButton;
+
 
         void Start() {
             // SetInitialState();
@@ -78,6 +90,7 @@ namespace Spaces {
             joystick.SetActive(false);
             StandUpButton.SetActive(true);
             SitDownCameraChangeB.SetActive(true);
+            ToggleEmotions(true);
         }
 
         public void StandUp() {
@@ -85,6 +98,7 @@ namespace Spaces {
             joystick.SetActive(true);
             SitDownCameraChangeB.SetActive(false);
             isSitting = false;
+            ToggleEmotions(false);
         }
 
         public void SetSitDownListeners(System.Action SitDown, System.Action StandUp) {
@@ -97,7 +111,9 @@ namespace Spaces {
         }
 
         public void ToggleScreenshot(bool open) {
+            CoinsB.SetActive(!open);
             GoBackHomeB.SetActive(!open);
+            ToggleEmotions(open);
             StandUpButton.SetActive(!open && isSitting);
             SitDownButton.SetActive(false);
             SitDownCameraChangeB.SetActive(!open && isSitting);
@@ -145,6 +161,7 @@ namespace Spaces {
         public void AddPlayerToOtherComponents(CharacterScript player) {
             Compass.GetComponent<CompassScript>().SetPlayer(player.transform);
             flyerGameScript.SetPlayer(player);
+            racingManagerScript.SetPlayer(player);
         }
 
         public void CanDoDeliveryIn(TimeSpan time) {
@@ -207,6 +224,47 @@ namespace Spaces {
             flyerGameScript.LeaveFlyer();
             LeaveFylerButton.SetActive(false);
             GoBackHomeB.SetActive(true);
+        }
+
+        public void ToggleEmotions(bool open) {
+            SmileEmotion.SetActive(open);
+            TalkEmotion.SetActive(open);
+            SurpriseEmotion.SetActive(open);
+            ThoughtfulEmotion.SetActive(open);
+            AngyEmotion.SetActive(open);
+            EatingEmotion.SetActive(open);
+        }
+
+        public void ToggleJoinRaceButton(bool open) {
+            JoinRaceButton.SetActive(open);
+        }
+
+        public void ToggleRacingLobby(bool open, List<string> playersInLobby) {
+            RacingLobbyPanel.SetActive(open);
+            if (!open) {
+                return;
+            }
+            foreach(string player in playersInLobby) {
+                AddPlayerToRacingLobby(player);
+            }
+        }
+
+        public void AddPlayerToRacingLobby(string name) {
+            // TODO: 
+            // instantiate a button (check friend manager)
+            // set name
+        }
+
+        public void SetRacingLobbyManager(string name) {
+            // TODO instantiate racingmanager button
+        }
+
+        public void ToggleStartRaceButton(bool open) {
+            StartRaceButton.SetActive(open);
+        }
+
+        public void ToggleRaceUnavailable(bool open) {
+            RaceUnavailableButton.SetActive(open);
         }
     }
 }
